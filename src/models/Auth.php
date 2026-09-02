@@ -10,20 +10,22 @@
 
     use Database;
 
-    public static function getUser(array $params): array {
+    public static function createUser(array $params): bool {
 
-      try {
-
-        $query = 'SELECT id, username FROM useras WHERE username = ?';
-        return [ 'data' => self::readOne($query, $params) ];
-
-      } catch (\PDOException $e) {
-
-        return [ 'error' => SERVER_500 ];
-
-      }
+      $query = 'INSERT INTO users(username, password) VALUES(?, ?)';
+      return self::create($query, $params);
 
     }
+
+
+    public static function getUser(array $params): array {
+
+      $query = 'SELECT id, username FROM users WHERE username = ?';
+      return self::readOne($query, $params);
+
+    }
+
+
 
 
   }

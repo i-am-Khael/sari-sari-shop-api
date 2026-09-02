@@ -12,7 +12,13 @@
     }
 
 
-    public static function sanitizeInput(string|int $input, string $type = ''): string {
+    public static function _error(int $status, array $data = []): string {
+      http_response_code($status);
+      return json_encode([ 'status' => $status, 'errors' => $data ]);
+    }
+
+
+    public static function sanitize(string|int $input, string $type = ''): string {
 
       $input = (string) $input;
       $input = stripcslashes($input);
