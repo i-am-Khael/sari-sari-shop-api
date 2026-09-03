@@ -11,53 +11,84 @@
     private array $data;
 
     public function __construct() {
+
       header('Content-Type: application/json');
       $this->data = json_decode(file_get_contents('php://input'), true);
+
     }
 
 
     public function register(): string {
 
       $errors = [];
-      $username = Helper::sanitize($this->data['username']);
-      $password = Helper::sanitize($this->data['password']);
+      $username = $this->data['username'];
+      $password = $this->data['password'];
+      $key = (string) $_GET['key'] ?? '';
 
       try {
 
-        $result = AuthModel::getUser([ $username ]);
-
-        if ( is_array($result) && count($result) > 0 ) {
-          $errors['username'] = 'Username already exists';
-          return Helper::_error(400, $errors);
+        if ( Helper::validate($key, 'key') === 'error' ) {
+          $errors['api_key'] = INVALID_KEY;
+          return Helper::error(400, $errors);
         }
 
-        if ( !preg_match('/^[a-zA-Z\d]+$/', $username) ) {
-          $errors['username'] = USERNAME_ERROR;
-          return Helper::_error(400, $errors);
-        }
+        if ( Helper::validate($username, 'user') === 'error' ) $errors['username'] = USER_EXISTS;
+        if ( Helper::validate($username, 'username') === 'error' ) $errors['username'] = USERNAME_ERROR;
+        if ( Helper::validate($password, 'password') === 'error' ) $errors['password'] = PASSWORD_ERROR;
 
-        if ( !preg_match('/^[a-zA-Z\d]{8,255}+$/', $password) ) {
-          $errors['password'] = 'password must be minimum of 8 characters';
-          return Helper::_error(400, $errors);
-        }
+        if ( !empty($errors) ) return Helper::error(400, $errors);
 
-        if ( empty($errors) ) {
-          $result = AuthModel::createUser([ $username, password_hash($password, PASSWORD_BCRYPT) ]);
-          if ( $result ) return json_encode([ 'status' => 200, 'msg' => 'Register User Successfully!' ]);
-        }
+        $result = AuthModel::createUser([ $username, password_hash($password, PASSWORD_BCRYPT) ]);
+
+        if ( $result ) return Helper::success(200, [ 'msg' => 'Registration Success!' ]);
 
       } catch (\PDOException $e) {
 
-        $errors['server'] = SERVER_500;
-        return Helper::_error(500, $errors);
+        return Helper::serverError();
 
       }
 
     }
 
 
-    public function login() {
+    public function login(): string {
+
+      $errors = [];
+      $username = Helper::sanitize($this->data['username']);
+      $password = Helper::sanitize($this->data['password']);
+      $key = (string) $_GET['key'] ?? '';
+
+      try {
+
+        if ( Helper::validate($key, 'key') === 'error' ) {
+          $errors['api_key'] = INVALID_KEY;
+          return Helper::error(400, $errors);
+        }
+
+        $result = AuthModel::getUser($username);
+
+        if ( count($result) > 0 ) {
+
+          $data = [
+            'id' => $result['id'],
+            'user' => $result['username'],
+            'is_auth' => true
+          ];
+
+          return password_verify($password, $result['password']) ? Helper::success(200, $data) : Helper::error(400,[ 'user' => INVALID_USER ]);
+
+        }
+
+        return Helper::error(400, [ 'user' => INVALID_USER ]);
+
+      } catch (\PDOException $e) {
+
+        return Helper::serverError();
+
+      }
+
     }
+
 
 
 

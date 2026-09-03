@@ -12,7 +12,17 @@
     }
 
 
-    public static function _error(int $status, array $data = []): string {
+    public static function serverError(): string {
+      return self::error(500, [ 'server' => SERVER_ERROR_500 ]);
+    }
+
+
+    public static function success(int $status = 200, array $data = []): string {
+      http_response_code($status);
+      return json_encode([ 'status' => $status, 'data' => $data ]);
+    }
+
+    public static function error(int $status, array $data = []): string {
       http_response_code($status);
       return json_encode([ 'status' => $status, 'errors' => $data ]);
     }
@@ -47,5 +57,35 @@
       }
 
     }
+
+
+    public static function validate(string $input, string $type = ''): string {
+
+      switch($type) {
+
+        case 'username':
+          $username = self::sanitize($input);
+          return !preg_match('/^[a-zA-Z0-9]{3,50}+$/', $username) ? 'error' : '';
+
+        case 'password':
+          $password = self::sanitize($input);
+          return strlen($password) >= 8 && strlen($password) <= 255 ? '' : 'error';
+
+        case 'user':
+          $username = self::sanitize($input);
+          $result = Auth::getUser($username);
+          return ( is_array($result) && count($result) > 0 ) ? 'error' : '';
+
+        case 'key':
+          $result = Auth::getKey($input);
+          return ( is_array($result) && count($result) === 0 ) ? 'error' : '';
+
+        default:
+          return '';
+
+      }
+
+    }
+
 
   }
