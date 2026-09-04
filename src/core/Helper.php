@@ -4,6 +4,7 @@
 
   namespace Core;
   use Models\Auth;
+use Models\Category;
 
   class Helper {
 
@@ -12,8 +13,11 @@
     }
 
 
-    public static function serverError(): string {
-      return self::error(500, [ 'server' => SERVER_ERROR_500 ]);
+    public static function setInput() {
+      header('Content-Type: application/json');
+      if ( json_decode(file_get_contents('php://input'), true) ) {
+        return json_decode(file_get_contents('php://input'), true);
+      }
     }
 
 
@@ -22,9 +26,15 @@
       return json_encode([ 'status' => $status, 'data' => $data ]);
     }
 
+
     public static function error(int $status, array $data = []): string {
       http_response_code($status);
       return json_encode([ 'status' => $status, 'errors' => $data ]);
+    }
+
+
+    public static function serverError(): string {
+      return self::error(500, [ 'server' => SERVER_ERROR_500 ]);
     }
 
 
@@ -63,6 +73,15 @@
 
       switch($type) {
 
+        case 'key':
+          $result = Auth::getKey($input);
+          return ( is_array($result) && count($result) === 0 ) ? 'error' : '';
+
+        case 'user':
+          $username = self::sanitize($input);
+          $result = Auth::getUser($username);
+          return ( is_array($result) && count($result) > 0 ) ? 'error' : '';
+
         case 'username':
           $username = self::sanitize($input);
           return !preg_match('/^[a-zA-Z0-9]{3,50}+$/', $username) ? 'error' : '';
@@ -71,14 +90,10 @@
           $password = self::sanitize($input);
           return strlen($password) >= 8 && strlen($password) <= 255 ? '' : 'error';
 
-        case 'user':
-          $username = self::sanitize($input);
-          $result = Auth::getUser($username);
+        case 'category':
+          $category = self::sanitize($input);
+          $result = Category::getCategory($category);
           return ( is_array($result) && count($result) > 0 ) ? 'error' : '';
-
-        case 'key':
-          $result = Auth::getKey($input);
-          return ( is_array($result) && count($result) === 0 ) ? 'error' : '';
 
         default:
           return '';

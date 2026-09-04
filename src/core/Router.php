@@ -24,6 +24,11 @@
     }
 
 
+    public function delete(string $route, array $action): self {
+      return $this->register('DELETE', $route, $action);
+    }
+
+
     public function resolve(string $requestMethod, string $route): void {
 
       $route = explode('?', $route)[0];

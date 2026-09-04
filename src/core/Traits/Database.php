@@ -59,4 +59,10 @@
     }
 
 
+    protected static function delete(string $query, string $id): bool {
+      $stmt = self::setConnection()->prepare($query);
+      return $stmt->execute([ $id ]);
+    }
+
+
   }

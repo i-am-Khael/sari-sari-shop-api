@@ -14,6 +14,8 @@
   $router
     ->post('/api/auth/register', [Controllers\Auth::class, 'register'])
     ->post('/api/auth/login', [Controllers\Auth::class, 'login'])
-    ->get('/api/categories', [Controllers\Categories::class, 'index']);
+    ->post('/api/categories/add', [Controllers\Categories::class, 'add'])
+    ->get('/api/categories/all', [Controllers\Categories::class, 'getCategories'])
+    ->delete('/api/categories/delete', [Controllers\Categories::class, 'delete']);
 
   $router->resolve($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

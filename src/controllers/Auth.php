@@ -71,8 +71,7 @@
 
           $data = [
             'id' => $result['id'],
-            'user' => $result['username'],
-            'is_auth' => true
+            'user' => $result['username']
           ];
 
           return password_verify($password, $result['password']) ? Helper::success(200, $data) : Helper::error(400,[ 'user' => INVALID_USER ]);
@@ -88,8 +87,5 @@
       }
 
     }
-
-
-
 
   }
