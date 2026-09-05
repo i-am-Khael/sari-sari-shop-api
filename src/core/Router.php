@@ -24,6 +24,11 @@
     }
 
 
+    public function patch(string $route, array $action): self {
+      return $this->register('PATCH', $route, $action);
+    }
+
+
     public function delete(string $route, array $action): self {
       return $this->register('DELETE', $route, $action);
     }

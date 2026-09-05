@@ -9,4 +9,5 @@
   DEFINE('USER_EXISTS', 'Username is already taken!');
   DEFINE('CATEGORY_EXISTS', 'Category already exists.');
   DEFINE('CATEGORY_OK', 'Added category successfully.');
+  DEFINE('CATEGORY_UPDATED', 'Updated category successfully.');
   DEFINE('DELETE_CATEGORY', 'Deleted category successfully.');

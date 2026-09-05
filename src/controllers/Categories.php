@@ -10,28 +10,32 @@
   class Categories {
 
     private array $data = [];
-
+    private string $key = '';
+    private string $id = '';
+    private string $category = '';
+    private string $description = '';
 
     public function __construct() {
       header('Content-Type: application/json');
       $this->data = json_decode(file_get_contents('php://input'), true) ?? [];
+      $this->key = trim($_SERVER['HTTP_X_API_KEY']) ?? '';
+      $this->id = Helper::sanitize($this->data['id'] ?? '');
+      $this->category = Helper::sanitize($this->data['category'] ?? '');
+      $this->description = Helper::sanitize($this->data['description'] ?? '');
     }
 
 
     public function add(): string {
 
       $errors = [];
-      $category = ucfirst($this->data['category']);
-      $description = Helper::sanitize(ucfirst($this->data['description']));
-      $key = $_GET['key'] ?? '';
 
       try {
 
-        if ( Helper::validate($key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
-        if ( Helper::validate($category, 'category') === 'error' ) $errors['category'] = CATEGORY_EXISTS;
+        if ( Helper::validate($this->key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
+        if ( Helper::validate($this->category, 'category') === 'error' ) $errors['category'] = CATEGORY_EXISTS;
         if ( !empty($errors) ) return Helper::error(400, $errors);
 
-        $result = Category::addCategory([ $category, $description ]);
+        $result = Category::addCategory([ $this->category, $this->description ]);
 
         if ( $result ) {
           return Helper::success(200, [
@@ -43,43 +47,65 @@
 
       } catch (\PDOException $e) {
 
-        return Helper::error(500, [ 'server' => SERVER_500 ]);
+        return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
 
       }
 
     }
 
 
-    public function getCategories() {
+    public function getCategories(): string {
 
       try {
 
         $result = Category::getCategories();
-        if ( count($result) > 0 ) return Helper::success(200, $result);
+        return Helper::success(200, $result);
 
       } catch (\PDOException $e) {
 
-        return Helper::error(500, [ 'server' => SERVER_500 ]);
+        return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
 
       }
 
     }
 
 
-    public function delete() {
+    public function update(): string {
+
+      $errors = [];
 
       try {
 
-        $id = Helper::sanitize( (string) $this->data['id'] );
-        $result = Category::deleteCategory($id);
-        $key = $_GET['key'] ?? '';
+        if ( Helper::validate($this->key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]) ;
+        if ( Helper::validate($this->category, 'category') === 'error' ) $errors['category'] = CATEGORY_EXISTS;
+        if ( !empty($errors) ) return Helper::error(400, $errors);
 
-        if ( Helper::validate($key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
+        $result = Category::updateCategory([ $this->category, $this->description, $this->id ]);
+
+        if ( $result ) return Helper::success(200, [ 'msg' => CATEGORY_UPDATED ]);
+
+      } catch (\PDOException $e) {
+
+        return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
+
+      }
+
+    }
+
+
+    public function delete(): string {
+
+      try {
+
+        $result = Category::deleteCategory($this->id);
+
+        if ( Helper::validate($this->key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
+
         if ( $result ) return Helper::success(200, [ 'msg' => DELETE_CATEGORY ]);
 
-      } catch (Exception $e) {
+      } catch (\PDOException $e) {
 
-        return Helper::error(500, [ 'server' => SERVER_500 ]);
+        return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
 
       }
 

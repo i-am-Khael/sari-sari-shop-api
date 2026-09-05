@@ -4,7 +4,7 @@
 
   namespace Core;
   use Models\Auth;
-use Models\Category;
+  use Models\Category;
 
   class Helper {
 
