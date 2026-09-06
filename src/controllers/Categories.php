@@ -31,9 +31,12 @@
 
       try {
 
-        if ( Helper::validate($this->key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
+        if ( Helper::validate($this->key, 'key') === 'error' ) {
+          return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
+        }
+
         if ( Helper::validate($this->category, 'category') === 'error' ) $errors['category'] = CATEGORY_EXISTS;
-        if ( !empty($errors) ) return Helper::error(400, $errors);
+        if ( $errors ) return Helper::error(400, $errors);
 
         $result = Category::addCategory([ $this->category, $this->description ]);
 
@@ -58,6 +61,10 @@
 
       try {
 
+        if ( Helper::validate($this->key, 'key') === 'error' ) {
+          return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
+        }
+
         $result = Category::getCategories();
         return Helper::success(200, $result);
 
@@ -76,12 +83,14 @@
 
       try {
 
-        if ( Helper::validate($this->key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]) ;
+        if ( Helper::validate($this->key, 'key') === 'error' ) {
+          return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
+        }
+
         if ( Helper::validate($this->category, 'category') === 'error' ) $errors['category'] = CATEGORY_EXISTS;
         if ( !empty($errors) ) return Helper::error(400, $errors);
 
         $result = Category::updateCategory([ $this->category, $this->description, $this->id ]);
-
         if ( $result ) return Helper::success(200, [ 'msg' => CATEGORY_UPDATED ]);
 
       } catch (\PDOException $e) {
@@ -97,10 +106,11 @@
 
       try {
 
+        if ( Helper::validate($this->key, 'key') === 'error' ) {
+          return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
+        }
+
         $result = Category::deleteCategory($this->id);
-
-        if ( Helper::validate($this->key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
-
         if ( $result ) return Helper::success(200, [ 'msg' => DELETE_CATEGORY ]);
 
       } catch (\PDOException $e) {

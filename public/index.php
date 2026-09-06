@@ -16,12 +16,15 @@
     ->post('/api/auth/login', [Controllers\Auth::class, 'login'])
 
     // Categories
-    ->post('/api/categories/add', [Controllers\Categories::class, 'add'])
     ->get('/api/categories/all', [Controllers\Categories::class, 'getCategories'])
+    ->post('/api/categories/add', [Controllers\Categories::class, 'add'])
     ->patch('/api/categories/update', [Controllers\Categories::class, 'update'])
     ->delete('/api/categories/delete', [Controllers\Categories::class, 'delete'])
 
     // Products
-    ->post('/api/products/add', [Controllers\Products::class, 'add']);
+    ->get('/api/products/all', [Controllers\Products::class, 'getAll'])
+    ->post('/api/products/add', [Controllers\Products::class, 'add'])
+    ->post('/api/products/update', [Controllers\Products::class, 'update'])
+    ->delete('/api/products/delete', [Controllers\Products::class, 'delete']);
 
   $router->resolve($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

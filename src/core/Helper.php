@@ -3,6 +3,7 @@
   declare(strict_types=1);
 
   namespace Core;
+  use finfo;
   use Models\Auth;
   use Models\Category;
 
@@ -10,14 +11,6 @@
 
     public static function _404(): void {
       echo '404 | API Not Found!';
-    }
-
-
-    public static function setInput() {
-      header('Content-Type: application/json');
-      if ( json_decode(file_get_contents('php://input'), true) ) {
-        return json_decode(file_get_contents('php://input'), true);
-      }
     }
 
 
@@ -99,6 +92,25 @@
           return '';
 
       }
+
+    }
+
+
+    public static function validateImage(array $file, string $prefix): array|string {
+
+      $fileInfo = new finfo(FILEINFO_MIME_TYPE);
+      $mimeType = (string) $fileInfo->file($file['tmp_name']);
+      $oneMB = 1 * 1024 * 1024;
+      $imageTypes = [
+        'image/png' => 'png',
+        'image/jpg' => 'jpg',
+        'image/webp' => 'webp',
+      ];
+
+      if ($file['size'] > $oneMB) return 'error';
+      if (!array_key_exists($mimeType, $imageTypes)) return 'error';
+
+      return $prefix . bin2hex(random_bytes(16)) . '.' . $imageTypes[$mimeType];
 
     }
 
