@@ -31,7 +31,7 @@
         $result = Product::getProducts();
         return Helper::success(200, $result);
 
-      } catch (Exception $e) {
+      } catch (\PDOException $e) {
 
         return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
 
@@ -131,7 +131,7 @@
         $result = Product::deleteProduct($id);
         if ( $result ) return Helper::success(200, [ 'msg' => DELETE_PRODUCT ]);
 
-      } catch (Exception $e) {
+      } catch (\PDOException $e) {
 
         return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
 

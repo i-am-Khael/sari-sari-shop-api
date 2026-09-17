@@ -10,32 +10,39 @@
 
     use Database;
 
+
     public static function addCategory(array $params): bool {
-      $query = 'INSERT INTO product_categories(category, category_desc) VALUES(?, ?)';
+      $query = 'INSERT INTO categories(category, description) VALUES(?, ?)';
       return self::create($query, $params);
     }
 
 
     public static function getCategory(string $category): array {
-      $query = 'SELECT category FROM product_categories WHERE category = ?';
+      $query = 'SELECT id, category, description FROM categories WHERE category = ?';
       return self::readOne($query, [ $category ]);
     }
 
 
     public static function getCategories(): array {
-      $query = 'SELECT id, category, category_desc FROM product_categories';
+      $query = 'SELECT id, category, description FROM categories';
       return self::readAll($query);
     }
 
 
+    public static function checkCategory(string $category, string $id): ?array {
+      $query = 'SELECT id, category, description FROM categories WHERE category = ? AND id <> ? LIMIT 1';
+      return self::readOne($query, [ $category, $id ]);
+    }
+
+
     public static function updateCategory(array $params): bool {
-      $query = 'UPDATE product_categories SET category = ?, category_desc = ?, updated_at = NOW() WHERE id = ?';
+      $query = 'UPDATE categories SET category = ?, description = ? WHERE id = ?';
       return self::create($query, $params);
     }
 
 
     public static function deleteCategory(string $id) :bool {
-      $query = 'DELETE FROM product_categories WHERE id = ?';
+      $query = 'DELETE FROM categories WHERE id = ?';
       return self::delete($query, $id);
     }
 

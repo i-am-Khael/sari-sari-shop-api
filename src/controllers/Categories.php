@@ -87,8 +87,11 @@
           return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
         }
 
-        if ( Helper::validate($this->category, 'category') === 'error' ) $errors['category'] = CATEGORY_EXISTS;
-        if ( !empty($errors) ) return Helper::error(400, $errors);
+        $category = Helper::validate($this->category);
+        $description = Helper::validate($this->description);
+        $check = Category::checkCategory($category, $this->id);
+
+        if ( !empty($check) ) Helper::error(400, [ 'category' => CATEGORY_EXISTS ]);
 
         $result = Category::updateCategory([ $this->category, $this->description, $this->id ]);
         if ( $result ) return Helper::success(200, [ 'msg' => CATEGORY_UPDATED ]);

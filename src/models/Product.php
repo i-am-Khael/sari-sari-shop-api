@@ -15,13 +15,13 @@
         SELECT
           p.id,
           p.product,
-          p.product_stock AS stock,
-          p.product_price AS price,
-          p.product_desc AS description,
-          p.product_file AS filename,
+          p.stock,
+          p.price,
+          p.description,
+          p.filename,
           c.category
         FROM products AS p
-        INNER JOIN product_categories AS c
+        INNER JOIN categories AS c
         ON p.category_id = c.id
       ';
       return self::readAll($query, $params);
@@ -32,10 +32,10 @@
       $query = '
         INSERT INTO products(
           product,
-          product_stock,
-          product_price,
-          product_desc,
-          product_file,
+          stock,
+          price,
+          desc,
+          file,
           category_id)
         VALUES(?, ?, ?, ?, ?, ?)
       ';
@@ -47,10 +47,10 @@
       $query = '
         UPDATE
           products SET product = ?,
-          product_stock = ?,
-          product_price = ?,
-          product_desc = ?,
-          product_file = ?,
+          stock = ?,
+          price = ?,
+          description = ?,
+          file = ?,
           category_id = ?,
           updated_at = NOW()
         WHERE id = ?
