@@ -3,9 +3,10 @@
   declare(strict_types=1);
 
   namespace Core;
-  use finfo;
+
   use Models\Auth;
-  use Models\Category;
+  use finfo;
+
 
   class Helper {
 
@@ -31,72 +32,47 @@
     }
 
 
-    public static function sanitize(string|int $input, string $type = ''): string {
-
+    public static function sanitize(string|int|float $input): string {
       $input = (string) $input;
       $input = stripcslashes($input);
       $input = trim($input);
-
-      switch ($type) {
-
-        case 'email':
-              $email = filter_var($input, FILTER_VALIDATE_EMAIL);
-              return $email ? $email : 'error';
-
-        case 'number':
-              $number = filter_var($input, FILTER_VALIDATE_INT);
-              return $number ? (string) $number : '0';
-
-        case 'money':
-              $number = filter_var($input, FILTER_VALIDATE_FLOAT);
-              return $number ? (string) $number : '0';
-
-        case 'text':
-              return strip_tags($input);
-
-        default:
-              return strip_tags($input);
-
-      }
-
+      return strip_tags($input);
     }
 
 
-    public static function validate(string $input, string $type = ''): string {
+    public static function isValidInteger(string|int $input, ?int $min, ?int $max): bool {
+      $input = (int) self::sanitize($input);
+      $input = filter_var($input, FILTER_VALIDATE_INT);
+      if ( $input === false ) return false;
+      if ( $min !== null && input < $min ) return false;
+      if ( $max !== null && $input > $max ) return false;
+      return true;
+    }
 
-      switch($type) {
 
-        case 'key':
-          $result = Auth::getKey($input);
-          return ( is_array($result) && count($result) === 0 ) ? 'error' : '';
+    public static function isValidMoney(string|float $input): bool {
+      $input = (float) self::sanitize($input);
+      return filter_var($input, FILTER_VALIDATE_FLOAT) !== false;
+    }
 
-        case 'user':
-          $username = self::sanitize($input);
-          $result = Auth::getUser($username);
-          return ( is_array($result) && count($result) > 0 ) ? 'error' : '';
 
-        case 'username':
-          $username = self::sanitize($input);
-          return !preg_match('/^[a-zA-Z0-9]{3,50}+$/', $username) ? 'error' : '';
+    public static function isValidUsername(string $input): bool {
+      $input = self::sanitize($input);
+      return preg_match('/^[a-zA-Z0-9]{3,50}$/', $input) === 1;
+    }
 
-        case 'password':
-          $password = self::sanitize($input);
-          return strlen($password) >= 8 && strlen($password) <= 255 ? '' : 'error';
 
-        case 'category':
-          $category = self::sanitize($input);
-          $result = Category::getCategory($category);
-          return ( is_array($result) && count($result) > 0 ) ? 'error' : '';
-
-        default:
-          return '';
-
-      }
-
+    public static function isValidPassword(string $input): bool {
+      $input = strlen(self::sanitize($input));
+      return $input >= 8 && $input <=255;
     }
 
 
     public static function validateImage(array $file, string $prefix): array|string {
+
+      if ( !isset($file['error']) ) return 'error';
+      if ( $file['error'] !== UPLOAD_ERR_OK ) return 'error';
+      if ( empty($file['tmp_name'] || !is_uploaded_file($file['tmp_name'])) ) return 'error';
 
       $fileInfo = new finfo(FILEINFO_MIME_TYPE);
       $mimeType = (string) $fileInfo->file($file['tmp_name']);
@@ -114,5 +90,10 @@
 
     }
 
+
+    public static function hasValidApiKey(string $input): bool {
+      $result = Auth::getKey($input);
+      return is_array($result) && count($result) > 0;
+    }
 
   }

@@ -24,16 +24,14 @@
 
       try {
 
-        if ( Helper::validate($this->key, 'key') === 'error' ) {
-          return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
-        }
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
 
         $result = Product::getProducts();
         return Helper::success(200, $result);
 
       } catch (\PDOException $e) {
 
-        return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
+        return Helper::serverError();
 
       }
 
@@ -43,8 +41,8 @@
 
       $errors = [];
       $product = Helper::sanitize($_POST['product'] ?? '');
-      $stock = Helper::sanitize($_POST['stock'] ?? '', 'number');
-      $price = Helper::sanitize($_POST['price'] ?? '', 'money');
+      $stock = Helper::sanitize($_POST['stock'] ?? 0);
+      $price = Helper::sanitize($_POST['price'] ?? 0);
       $description = Helper::sanitize($_POST['description'] ?? '');
       $category_id = Helper::sanitize($_POST['category_id'] ?? '');
       $fileName = '';
@@ -53,9 +51,9 @@
 
       try {
 
-        if ( Helper::validate($this->key, 'key') === 'error' ) {
-          return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
-        }
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
+        if ( $product === '' ) $errors['product'] = 'Product is required.';
+        if ( $category_id === '' ) $errors['category_id'] = 'Category is required.';
 
         if ( !empty($file) ) {
           $fileName = Helper::validateImage($file, 'product_') ?? '';
@@ -73,7 +71,7 @@
 
       } catch (\PDOException $e) {
 
-        return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
+        return Helper::serverError();
 
       }
 
@@ -85,8 +83,8 @@
       $errors = [];
       $id = Helper::sanitize($_POST['id'] ?? '');
       $product = Helper::sanitize($_POST['product'] ?? '');
-      $stock = Helper::sanitize($_POST['stock'] ?? '', 'number');
-      $price = Helper::sanitize($_POST['price'] ?? '', 'money');
+      $stock = Helper::sanitize($_POST['stock'] ?? 0);
+      $price = Helper::sanitize($_POST['price'] ?? 0);
       $description = Helper::sanitize($_POST['description'] ?? '');
       $category_id = Helper::sanitize($_POST['category_id'] ?? '');
       $fileName = Helper::sanitize($_POST['fileName'] ?? '');
@@ -95,12 +93,10 @@
 
       try {
 
-        if ( Helper::validate($this->key, 'key') ) {
-          return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
-        }
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
 
         if ( !empty($file) ) {
-          $fileName = Helper::validate($file, 'product_') ?? '';
+          $fileName = Helper::validateImage($file, 'product_') ?? '';
           if ( $fileName === 'error' ) $errors['file'] = IMAGE_ERROR;
         }
 
@@ -115,7 +111,7 @@
 
       } catch (\PDOException $e) {
 
-        return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
+        return Helper::serverError();
 
       }
 
@@ -133,7 +129,7 @@
 
       } catch (\PDOException $e) {
 
-        return Helper::error(500, [ 'server' => SERVER_ERROR_500 ]);
+        return Helper::serverError();
 
       }
 

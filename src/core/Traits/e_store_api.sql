@@ -107,3 +107,6 @@ CREATE TABLE secrets(
   PRIMARY KEY (id),
   UNIQUE KEY unique_secret (secret)
 ) ENGINE=InnoDB;
+
+
+INSERT INTO secrets(secret) VALUE('ed9c4407edcbd37af5e148df48265122');

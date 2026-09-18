@@ -19,6 +19,7 @@
           p.price,
           p.description,
           p.filename,
+          c.id AS category_id,
           c.category
         FROM products AS p
         INNER JOIN categories AS c
@@ -34,10 +35,10 @@
           product,
           stock,
           price,
-          desc,
-          file,
-          category_id)
-        VALUES(?, ?, ?, ?, ?, ?)
+          description,
+          filename,
+          category_id
+        ) VALUES(?, ?, ?, ?, ?, ?)
       ';
       return self::create($query, $params);
     }
@@ -45,14 +46,13 @@
 
     public static function updateProduct(array $params = []): bool {
       $query = '
-        UPDATE
-          products SET product = ?,
+        UPDATE products SET
+          product = ?,
           stock = ?,
           price = ?,
           description = ?,
-          file = ?,
-          category_id = ?,
-          updated_at = NOW()
+          filename = ?,
+          category_id = ?
         WHERE id = ?
       ';
       return self::create($query, $params);

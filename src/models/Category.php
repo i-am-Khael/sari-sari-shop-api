@@ -29,7 +29,7 @@
     }
 
 
-    public static function checkCategory(string $category, string $id): ?array {
+    public static function checkCategory(string $category, string $id): array {
       $query = 'SELECT id, category, description FROM categories WHERE category = ? AND id <> ? LIMIT 1';
       return self::readOne($query, [ $category, $id ]);
     }

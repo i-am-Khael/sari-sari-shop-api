@@ -3,8 +3,10 @@
   declare(strict_types=1);
 
   namespace Controllers;
+
   use Core\Helper;
   use Models\Auth as AuthModel;
+
 
   class Auth {
 
@@ -28,12 +30,13 @@
 
       try {
 
-        if (Helper::validate($this->key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
+        if ( !Helper::isValidUsername($this->username) ) $errors['username'] = USERNAME_ERROR;
+        if ( !Helper::isValidPassword($this->password) ) $errors['password'] = PASSWORD_ERROR;
 
-        if ( Helper::validate($this->username, 'user') === 'error' ) $errors['username'] = USER_EXISTS;
-        if ( Helper::validate($this->username, 'username') === 'error' ) $errors['username'] = USERNAME_ERROR;
-        if ( Helper::validate($this->password, 'password') === 'error' ) $errors['password'] = PASSWORD_ERROR;
+        $check = AuthModel::getUser($this->username);
 
+        if ( $check ) $errors['username'] = USER_EXISTS;
         if ( !empty($errors) ) return Helper::error(400, $errors);
 
         $result = AuthModel::createUser([ $this->username, password_hash($this->password, PASSWORD_BCRYPT) ]);
@@ -55,11 +58,9 @@
 
       try {
 
-        if ( Helper::validate($this->key, 'key') === 'error' ) return Helper::error(400, [ 'apiKey' => INVALID_KEY ]);
-
         $result = AuthModel::getUser($this->username);
 
-        if ( count($result) > 0 ) {
+        if ( $result ) {
 
           $data = [
             'id' => $result['id'],
