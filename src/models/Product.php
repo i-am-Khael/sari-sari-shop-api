@@ -44,17 +44,23 @@
     }
 
 
-    public static function updateProduct(array $params = []): bool {
+    public static function updateProduct(array $params = []) {
+      $set = [
+        'product = :product',
+        'stock = :stock',
+        'price = :price',
+        'description = :description',
+        'category_id = :category'
+      ];
+
+      if ( array_key_exists('filename', $params) ) $set[] = 'filename = :filename';
+
       $query = '
-        UPDATE products SET
-          product = ?,
-          stock = ?,
-          price = ?,
-          description = ?,
-          filename = ?,
-          category_id = ?
-        WHERE id = ?
+        UPDATE products
+        SET ' . implode(', ', $set) . '
+        WHERE id = :id
       ';
+
       return self::create($query, $params);
     }
 
