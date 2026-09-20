@@ -9,9 +9,12 @@
   class Products {
 
     private string $key = '';
+    private array $data = [];
 
     public function __construct() {
       $this->key = trim($_SERVER['HTTP_X_API_KEY']) ?? '';
+      header('Content-Type: application/json');
+      $this->data = json_decode(file_get_contents('php://input'), true) ?? [];
     }
 
 
@@ -36,8 +39,8 @@
 
       $errors = [];
       $product = Helper::sanitize($_POST['product'] ?? '');
-      $stock = Helper::sanitize($_POST['stock'] ?? 0);
-      $price = Helper::sanitize($_POST['price'] ?? 0);
+      $stock = (int) Helper::sanitize($_POST['stock'] ?? 0);
+      $price = (float) Helper::sanitize($_POST['price'] ?? 0);
       $description = Helper::sanitize($_POST['description'] ?? '');
       $category_id = Helper::sanitize($_POST['category_id'] ?? '');
       $fileName = '';
@@ -130,7 +133,7 @@
 
     public function delete(): string {
 
-      $id = Helper::sanitize($this->id);
+      $id = Helper::sanitize($this->data['id']);
 
       try {
 

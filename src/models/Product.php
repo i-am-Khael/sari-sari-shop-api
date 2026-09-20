@@ -55,11 +55,7 @@
 
       if ( array_key_exists('filename', $params) ) $set[] = 'filename = :filename';
 
-      $query = '
-        UPDATE products
-        SET ' . implode(', ', $set) . '
-        WHERE id = :id
-      ';
+      $query = 'UPDATE products SET ' . implode(', ', $set) . ' WHERE id = :id';
 
       return self::create($query, $params);
     }
