@@ -13,7 +13,7 @@
 
       if ( self::$conn instanceof \PDO ) return self::$conn;
 
-      $dsn = 'mysql:host=127.0.0.1;dbname=e_store_api;charset=utf8mb4';
+      $dsn = 'mysql:host=127.0.0.1;dbname=sari_sari_shop;charset=utf8mb4';
       $user = 'root';
       $pass = '';
       $options = [

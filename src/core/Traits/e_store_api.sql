@@ -1,8 +1,8 @@
 
 
-CREATE DATABASE IF NOT EXISTS e_store_api CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS sari_sari_shop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE e_store_api;
+USE sari_sari_shop;
 
 CREATE TABLE users(
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
