@@ -25,6 +25,9 @@
     ->get('/api/products/all', [Controllers\Products::class, 'getAll'])
     ->post('/api/products/add', [Controllers\Products::class, 'add'])
     ->post('/api/products/update', [Controllers\Products::class, 'update'])
-    ->delete('/api/products/delete', [Controllers\Products::class, 'delete']);
+    ->delete('/api/products/delete', [Controllers\Products::class, 'delete'])
+
+    // Checkout
+    ->post('/api/checkout/create-order', [Controllers\Checkout::class, 'createOrder']);
 
   $router->resolve($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

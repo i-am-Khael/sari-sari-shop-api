@@ -12,8 +12,8 @@
     private array $data = [];
 
     public function __construct() {
-      $this->key = trim($_SERVER['HTTP_X_API_KEY']) ?? '';
       header('Content-Type: application/json');
+      $this->key = trim($_SERVER['HTTP_X_API_KEY']) ?? '';
       $this->data = json_decode(file_get_contents('php://input'), true) ?? [];
     }
 

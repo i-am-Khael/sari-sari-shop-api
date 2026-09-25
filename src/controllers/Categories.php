@@ -12,6 +12,8 @@
     private array $data = [];
     private string $key = '';
     private string $id = '';
+    private string $icon = '';
+    private string $color = '';
     private string $category = '';
     private string $description = '';
 
@@ -20,6 +22,8 @@
       $this->data = json_decode(file_get_contents('php://input'), true) ?? [];
       $this->key = trim($_SERVER['HTTP_X_API_KEY']) ?? '';
       $this->id = Helper::sanitize($this->data['id'] ?? '');
+      $this->icon = Helper::sanitize($this->data['icon'] ?? '');
+      $this->color = Helper::sanitize($this->data['color'] ?? '');
       $this->category = Helper::sanitize($this->data['category'] ?? '');
       $this->description = Helper::sanitize($this->data['description'] ?? '');
     }
@@ -38,10 +42,12 @@
         $check = Category::getCategory($category);
 
         if ( $check ) $errors['category'] = CATEGORY_EXISTS;
+        if ( $this->icon === '' ) $errors['icon'] = 'Icon is required.';
+        if ( $this->color === '' ) $errors['color'] = 'Color is required.';
         if ( $category === '' ) $errors['category'] = 'Category is required.';
         if ( $errors ) return Helper::error(400, $errors);
 
-        $result = Category::addCategory([ $category, $description ]);
+        $result = Category::addCategory([ $category, $description, $this->icon, $this->color ]);
 
         if ( $result ) {
           return Helper::success(200, [
@@ -92,10 +98,12 @@
         $check = Category::checkCategory($category, $this->id);
 
         if ( !empty($check) ) $errors['category'] = CATEGORY_EXISTS ;
+        if ( $this->icon === '' ) $errors['icon'] = 'Icon is required.' ;
+        if ( $this->color === '' ) $errors['color'] = 'Color is required.' ;
         if ( $category === '' ) $errors['category'] = 'Category is required.' ;
         if ( $errors ) return Helper::error(400, $errors);
 
-        $result = Category::updateCategory([ $category, $description, $id ]);
+        $result = Category::updateCategory([ $this->icon, $this->color, $category, $description, $id ]);
         if ( $result ) return Helper::success(200, [ 'msg' => CATEGORY_UPDATED ]);
 
       } catch (\PDOException $e) {
