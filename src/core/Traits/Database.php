@@ -43,6 +43,13 @@
     }
 
 
+    protected  static function lastInsertedId(string $query, array $params): int {
+      $stmt = self::setConnection()->prepare($query);
+      if ( !$stmt->execute($params) ) return 0;
+      return (int) self::setConnection()->lastInsertId();
+    }
+
+
     protected static function readOne(string $query, array $params = []): array {
       $stmt = self::setConnection()->prepare($query);
       $stmt->execute($params);

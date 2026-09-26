@@ -38,7 +38,7 @@ CREATE TABLE products(
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   product VARCHAR(100) NOT NULL,
   stock INT(11) NOT NULL DEFAULT 0,
-  price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   description LONGTEXT NULL,
   filename VARCHAR(255) NULL,
   category_id BIGINT UNSIGNED NOT NULL,
@@ -55,6 +55,8 @@ CREATE TABLE products(
 CREATE TABLE orders(
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
+  reference_order_id VARCHAR(255) NOT NULL,
+  merchant_order_id VARCHAR(255) NOT NULL,
   order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   total_amount DECIMAL(10, 2) NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'pending',
@@ -71,24 +73,22 @@ CREATE TABLE order_items(
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_id BIGINT UNSIGNED NOT NULL,
   product_id BIGINT UNSIGNED NOT NULL,
-  quantity INT(11) NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
+  quantity INT UNSIGNED NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY unique_order_product (order_id, product_id),
+  INDEX index_order_items_order_id (order_id),
   INDEX index_order_items_product_id (product_id),
   CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_order_items_product FOREIGN KEY (product_id) REFERENCES products(id) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT check_order_items_quantity CHECK (quantity > 0),
-  CONSTRAINT check_order_items_price CHECK (price >= 0)
+  CONSTRAINT check_order_items_quantity CHECK (quantity > 0)
 ) ENGINE=InnoDB;
 
 
 CREATE TABLE payments(
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   amount DECIMAL(10, 2) NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'completed',
+  status VARCHAR(20) NOT NULL DEFAULT 'pending',
   order_id BIGINT UNSIGNED NOT NULL,
   payment_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   payment_method VARCHAR(20) NOT NULL,

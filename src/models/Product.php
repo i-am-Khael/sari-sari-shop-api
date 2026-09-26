@@ -29,6 +29,12 @@
     }
 
 
+    public static function getProductById(string $id): array {
+      $query = 'SELECT id, product, price, category_id FROM products WHERE id = ?';
+      return self::readOne($query, [ $id ]);
+    }
+
+
     public static function addProduct(array $params = []): bool {
       $query = '
         INSERT INTO products(
