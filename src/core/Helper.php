@@ -4,6 +4,8 @@
 
   namespace Core;
 
+  use DateTime;
+  use DateTimeZone;
   use Models\Auth;
   use finfo;
 
@@ -29,6 +31,13 @@
 
     public static function serverError(): string {
       return self::error(500, [ 'server' => SERVER_ERROR_500 ]);
+    }
+
+
+    public static function formatDate(string $date, string $timezone): string {
+      $newDate = new DateTime($date, new DateTimeZone('UTC'));
+      $newDate->setTimezone(new DateTimeZone($timezone));
+      return $newDate->format('Y-m-d H:i:s');
     }
 
 

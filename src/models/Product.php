@@ -35,6 +35,12 @@
     }
 
 
+    public static function getProductByName(string $product): array {
+      $query = 'SELECT id, stock FROM products WHERE product = ?';
+      return self::readOne($query, [ $product ]);
+    }
+
+
     public static function addProduct(array $params = []): bool {
       $query = '
         INSERT INTO products(
@@ -50,15 +56,14 @@
     }
 
 
-    public static function updateProduct(array $params = []) {
-      $set = [
-        'product = :product',
-        'stock = :stock',
-        'price = :price',
-        'description = :description',
-        'category_id = :category'
-      ];
+    public static function updateProduct(array $params = []): bool {
+      $set = [];
 
+      if ( array_key_exists('product', $params) ) $set[] = 'product = :product';
+      if ( array_key_exists('stock', $params) ) $set[] = 'stock = :stock';
+      if ( array_key_exists('price', $params) ) $set[] = 'price = :price';
+      if ( array_key_exists('description', $params) ) $set[] = 'description = :description';
+      if ( array_key_exists('category', $params) ) $set[] = 'category_id = :category';
       if ( array_key_exists('filename', $params) ) $set[] = 'filename = :filename';
 
       $query = 'UPDATE products SET ' . implode(', ', $set) . ' WHERE id = :id';

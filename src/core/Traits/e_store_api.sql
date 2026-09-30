@@ -58,13 +58,17 @@ CREATE TABLE orders(
   reference_order_id VARCHAR(255) NOT NULL,
   merchant_order_id VARCHAR(255) NOT NULL,
   order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  shipping_fee DECIMAL(10,2) NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
   total_amount DECIMAL(10, 2) NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  status VARCHAR(100) NOT NULL DEFAULT 'pending_payment',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   INDEX index_orders_user_id (user_id),
   CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+  CONSTRAINT check_orders_shipping_fee CHECK (shipping_fee >= 0),
+  CONSTRAINT check_orders_amount CHECK (amount >= 0),
   CONSTRAINT check_orders_total_amount CHECK (total_amount >= 0)
 ) ENGINE=InnoDB;
 
@@ -85,19 +89,17 @@ CREATE TABLE order_items(
 ) ENGINE=InnoDB;
 
 
-CREATE TABLE payments(
+CREATE TABLE transactions(
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  amount DECIMAL(10, 2) NOT NULL,
+  order_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   status VARCHAR(20) NOT NULL DEFAULT 'pending',
-  order_id BIGINT UNSIGNED NOT NULL,
-  payment_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  payment_method VARCHAR(20) NOT NULL,
+  transaction_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  transaction_method VARCHAR(20) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  INDEX index_payments_order_id (order_id),
-  CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT check_payments_amount CHECK (amount >= 0)
+  INDEX index_transactions_order_id (order_id),
+  CONSTRAINT fk_transactions_order_id FOREIGN KEY (order_id) REFERENCES orders(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 
@@ -111,4 +113,5 @@ CREATE TABLE secrets(
 ) ENGINE=InnoDB;
 
 
+INSERT INTO users(username, password) VALUE('demo','demo');
 INSERT INTO secrets(secret) VALUE('ed9c4407edcbd37af5e148df48265122');

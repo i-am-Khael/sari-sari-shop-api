@@ -4,9 +4,7 @@
 
   namespace Core;
 
-
   class Paypal {
-
 
     public static function paypalAccessToken(): string {
 

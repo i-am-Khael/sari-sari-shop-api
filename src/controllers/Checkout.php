@@ -8,6 +8,7 @@ use Core\Helper;
 use Core\Paypal;
 use Models\Order;
 use Models\Product;
+use Models\Transactions;
 
 class Checkout {
 
@@ -80,7 +81,12 @@ class Checkout {
       }
 
       $subTotal = round($subTotal, 2);
-      $amount = number_format($subTotal, 2, '.', '');
+      $shippingFee = $subTotal >= 1000.00 ? 0.00 : 100.00;
+      $totalAmount = round($subTotal + $shippingFee, 2);
+
+      $subTotalValue = number_format($subTotal, 2, '.', '');
+      $shippingValue = number_format($shippingFee, 2, '.', '');
+      $totalValue = number_format($totalAmount, 2, '.', '');
 
       $paypalPayload = [
         'intent' => 'CAPTURE',
@@ -90,12 +96,16 @@ class Checkout {
             'custom_id' => (string) $userID,
             'amount' => [
               'currency_code' => 'USD',
-              'value' => $amount,
+              'value' => $totalValue,
               'breakdown' => [
                 'item_total' => [
                   'currency_code' => 'USD',
-                  'value' => $amount,
+                  'value' => $subTotalValue,
                 ],
+              'shipping' => [
+                'currency_code' => 'USD',
+                'value' => $shippingValue
+              ]
               ],
             ],
             'items' => $paypalItems
@@ -107,11 +117,11 @@ class Checkout {
 
       if ( empty($paypalOrder) ) return Helper::error(502, [ 'server' => 'PayPal did not return an order ID.' ]);
 
-      $results = Order::createOrder([ $userID, $referenceId, $paypalOrder['id'], $amount ]);
+      $lastInsertedId = Order::createOrder([ $userID, $referenceId, $paypalOrder['id'], $subTotalValue, $shippingValue, $totalValue ]);
 
-      if ( (bool) $results ) {
+      if ( (bool) $lastInsertedId ) {
         foreach ($orderItems as $item) {
-          Order::createOrderItems([ $results, $item['product_id'], $item['quantity'] ]);
+          Order::createOrderItems([ $lastInsertedId, $item['product_id'], $item['quantity'] ]);
         }
       }
 
@@ -122,7 +132,6 @@ class Checkout {
 
     } catch (\Exception $e) {
 
-      var_dump($e->getMessage());
       return Helper::serverError();
 
     }
@@ -131,37 +140,58 @@ class Checkout {
 
 
 
-  public function captureOrder() {
+  public function captureOrder(): string {
 
-    $orderId = $this->data['orders']['orderID'] ?? '';
+    $merchantOrderId = $this->data['orders']['orderID'] ?? '';
 
     try {
 
-      if ( !is_string($orderId) || $orderId === '' ) return Helper::error(400, [ 'checkout' => 'PayPal order ID is required.' ]);
+      if ( !is_string($merchantOrderId) || $merchantOrderId === '' ) return Helper::error(400, [ 'checkout' => 'PayPal order ID is required.' ]);
 
-      $results = Paypal::captureOrder($orderId);
+      $results = Paypal::captureOrder($merchantOrderId);
+      $orders = Paypal::getOrder($merchantOrderId);
 
-      $orders = Paypal::getOrder($orderId);
+      $status = $results['status'];
+      $referenceOrderId = $results['purchase_units'][0]['reference_id'];
 
-      if ( $results ) {
-        return Helper::success(200, [ 'resultOne' => $results, 'orders' => $orders ]);
+      $orderId = Order::getOrderID([$referenceOrderId, $merchantOrderId]);
+
+      $orderStatus = $status === 'COMPLETED' ? 'PAID' : $status;
+      $orderItems = $orders['purchase_units'][0]['items'];
+      $itemTotal = $orders['purchase_units'][0]['amount']['breakdown']['item_total']['value'];
+      $shippingFee = $orders['purchase_units'][0]['amount']['breakdown']['shipping']['value'];
+      $totalAmount = $orders['purchase_units'][0]['amount']['value'];
+
+      if ( $status === 'COMPLETED' ) {
+        foreach($orderItems as $item) {
+          $products = Product::getProductByName($item['name']);
+          $remainingStock = $products['stock'] - (int) $item['quantity'];
+          Product::updateProduct([ 'stock' => $remainingStock, 'id' => $products['id'] ]);
+        }
       }
+
+      Order::updateOrderStatus([ $orderStatus, $referenceOrderId, $merchantOrderId ]);
+      Transactions::createTransactions([ $orderId['id'], $status, $this->data['orders']['paymentSource'] ]);
+
+      $receipt = [
+        'order_id' => $results['id'],
+        'reference_id' => $referenceOrderId,
+        'date' => Helper::formatDate($orders['create_time'], 'Asia/Singapore'),
+        'items' => $orders['purchase_units'][0]['items'],
+        'item_total' => $itemTotal,
+        'shipping_fee' => $shippingFee,
+        'total_amount' => $totalAmount,
+        'status' => $status
+      ];
+
+      return Helper::success(200, $receipt);
 
     } catch (\Exception $e) {
 
-      var_dump($e->getMessage());
       return Helper::serverError();
 
     }
 
-
   }
-
-
-
-  public function getOrder() {
-
-  }
-
 
 }
