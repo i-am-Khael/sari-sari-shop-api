@@ -11,7 +11,7 @@
     use Database;
 
 
-    public static function addCategory(array $params): bool {
+    public static function addCategory(array $params = []): bool {
       $query = 'INSERT INTO categories(category, description, icon, color) VALUES(?, ?, ?, ?)';
       return self::create($query, $params);
     }
@@ -35,7 +35,7 @@
     }
 
 
-    public static function updateCategory(array $params): bool {
+    public static function updateCategory(array $params = []): bool {
       $query = 'UPDATE categories SET icon = ?, color = ?, category = ?, description = ? WHERE id = ?';
       return self::create($query, $params);
     }

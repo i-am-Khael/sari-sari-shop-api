@@ -36,12 +36,13 @@ CREATE TABLE categories(
 
 CREATE TABLE products(
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  category_id BIGINT UNSIGNED NOT NULL,
   product VARCHAR(100) NOT NULL,
   stock INT(11) NOT NULL DEFAULT 0,
   price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   description LONGTEXT NULL,
   filename VARCHAR(255) NULL,
-  category_id BIGINT UNSIGNED NOT NULL,
+  is_featured TINYINT(1) NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -91,7 +92,7 @@ CREATE TABLE order_items(
 
 CREATE TABLE transactions(
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  order_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  order_id BIGINT UNSIGNED NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'pending',
   transaction_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   transaction_method VARCHAR(20) NULL,
@@ -113,5 +114,6 @@ CREATE TABLE secrets(
 ) ENGINE=InnoDB;
 
 
-INSERT INTO users(username, password) VALUE('demo','demo');
+INSERT INTO users(username, password) VALUE('demo','$2y$12$uThQagfhSz7SaqFfvynrdudEe/bccLB8AU15s0eFm.0q4PO.1aXg6');
+INSERT INTO users(username, password, role) VALUE('demo-admin','$2y$12$uThQagfhSz7SaqFfvynrdudEe/bccLB8AU15s0eFm.0q4PO.1aXg6', 'administrator');
 INSERT INTO secrets(secret) VALUE('ed9c4407edcbd37af5e148df48265122');

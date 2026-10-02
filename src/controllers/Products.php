@@ -3,6 +3,7 @@
   declare(strict_types=1);
 
   namespace Controllers;
+  use Core\Constants as MSG;
   use Core\Helper;
   use Models\Product;
 
@@ -22,10 +23,10 @@
 
       try {
 
-        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
 
         $result = Product::getProducts();
-        return Helper::success(200, $result);
+        return Helper::success($result);
 
       } catch (\PDOException $e) {
 
@@ -35,6 +36,25 @@
 
     }
 
+
+    public function featured(): string {
+
+      try {
+
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
+
+        $results = Product::featuredProducts();
+        return Helper::success($results);
+
+      } catch (\Exception $e) {
+
+        return Helper::serverError();
+
+      }
+
+    }
+
+
     public function add(): string {
 
       $errors = [];
@@ -43,29 +63,32 @@
       $price = (float) Helper::sanitize($_POST['price'] ?? 0);
       $description = Helper::sanitize($_POST['description'] ?? '');
       $category_id = Helper::sanitize($_POST['category_id'] ?? '');
+      $featured = Helper::sanitize($_POST['featured'] ?? 0);
       $fileName = '';
-      $storage = FILE_PATH . 'products/';
+      $storage = MSG::FILE_PATH . 'products/';
       $file = $_FILES['file'] ?? [];
 
       try {
 
-        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
-        if ( $product === '' ) $errors['product'] = 'Product is required.';
-        if ( (int) $category_id <= 0 ) $errors['category'] = 'Category is required.';
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
+        if ( $product === '' ) $errors['product'] = MSG::PRODUCT_REQUIRED;
+        if ( (int) $category_id <= 0 ) $errors['category'] = MSG::CATEGORY_REQUIRED;
 
         if ( !empty($file) ) {
           $fileName = Helper::validateImage($file, 'product_') ?? '';
-          if ( $fileName === 'error' ) $errors['file'] = IMAGE_ERROR;
+          if ( $fileName === 'error' ) $errors['file'] = MSG::INVALID_IMAGE;
         }
 
-        if ( $errors ) return Helper::error(400, $errors);
+        if ( $errors ) return Helper::error($errors);
 
-        $result = Product::addProduct([ $product, $stock, $price, $description, $fileName, $category_id ]);
+        $result = Product::addProduct([ $product, $stock, $price, $description, $fileName, $category_id, $featured ]);
 
         if ( $result ) {
           if ( !empty($file) ) move_uploaded_file($file['tmp_name'], $storage . $fileName);
-          return Helper::success(200, [ 'msg' => PRODUCT_OK ]);
+          return Helper::success([ 'msg' => MSG::PRODUCT_ADDED_SUCCESS ], 201);
         }
+
+        return Helper::error([ 'msg' => MSG::PRODUCT_ADDED_FAILED ]);
 
       } catch (\PDOException $e) {
 
@@ -85,42 +108,50 @@
       $price = Helper::sanitize($_POST['price'] ?? 0);
       $description = Helper::sanitize($_POST['description'] ?? '');
       $category_id = Helper::sanitize($_POST['category'] ?? '');
+      $featured = Helper::sanitize($_POST['featured'] ?? 0);
       $fileName = Helper::sanitize($_POST['fileName'] ?? '');
-      $storage = FILE_PATH . 'products/';
+      $storage = MSG::FILE_PATH . 'products/';
       $file = $_FILES['file'] ?? [];
 
       try {
 
-        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
 
-        if ( $id === '' ) $errors['product_id'] = 'Product ID is required.';
-        if ( $product === '' ) $errors['product'] = 'Product is required.';
-        if ( (int) $category_id <= 0 ) $errors['category'] = 'Category is required.';
+        if ( $id === '' ) $errors['product_id'] = MSG::PRODUCT_ID_REQUIRED;
+        if ( $product === '' ) $errors['product'] = MSG::PRODUCT_REQUIRED;
+        if ( (int) $category_id <= 0 ) $errors['category'] = MSG::CATEGORY_REQUIRED;
 
         if ( !empty($file) ) {
           $fileName = Helper::validateImage($file, 'product_') ?? '';
-          if ( $fileName === 'error' ) $errors['file'] = IMAGE_ERROR;
+          if ( $fileName === 'error' ) $errors['file'] = MSG::INVALID_IMAGE;
         }
 
-        if ( $errors ) return Helper::error(400, $errors);
+        if ( $errors ) return Helper::error($errors);
 
         $data = [
-        'id' => $id,
-        'product' => $product,
-        'stock' => $stock,
-        'price' => $price,
-        'description' => $description,
-        'category' => $category_id,
+          'product' => $product,
+          'stock' => $stock,
+          'price' => $price,
+          'description' => $description,
+          'category' => $category_id,
+          'is_featured' => $featured,
+          'id' => $id,
         ];
 
         if ( $fileName !== '' ) $data['filename'] = $fileName;
 
+        $oldFileName = Product::getProductById($id)['filename'];
+
         $result = Product::updateProduct($data);
 
-        if ( $result ) {
-          if ( !empty($file) ) move_uploaded_file($file['tmp_name'], $storage . $fileName);
-          return Helper::success(200, [ 'msg' => PRODUCT_UPDATED ]);
+        if ( $result && !empty($file) ) {
+          unlink($storage . basename($oldFileName));
+          move_uploaded_file($file['tmp_name'], $storage . $fileName);
+          return Helper::success([ 'msg' => MSG::PRODUCT_UPDATED_SUCCESS ]);
         }
+
+        return Helper::error([ 'msg' => MSG::PRODUCT_UPDATE_FAILED ]);
+
 
       } catch (\PDOException $e) {
 
@@ -134,11 +165,19 @@
     public function delete(): string {
 
       $id = Helper::sanitize($this->data['id']);
+      $storage = MSG::FILE_PATH . 'products/';
 
       try {
 
+        $oldFileName = Product::getProductById($id)['filename'];
         $result = Product::deleteProduct($id);
-        if ( $result ) return Helper::success(200, [ 'msg' => DELETE_PRODUCT ]);
+
+        if ( $result ) {
+          unlink($storage .$oldFileName);
+          return Helper::success([ 'msg' => MSG::PRODUCT_DELETED_SUCCESS ]);
+        }
+
+        return Helper::error([ 'msg' => MSG::PRODUCT_DELETE_FAILED ]);
 
       } catch (\PDOException $e) {
 

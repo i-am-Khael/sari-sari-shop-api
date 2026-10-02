@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Controllers;
 
+use Core\Constants as MSG;
 use Core\Helper;
 use Core\Paypal;
 use Models\Order;
@@ -24,8 +25,8 @@ class Checkout {
 
   public function createOrder(): string {
 
-    if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
-    if ( empty($this->data) ) return Helper::error(400, [ 'checkout' => 'Invalid checkout data.' ]);
+    if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
+    if ( empty($this->data) ) return Helper::error([ 'msg' => MSG::INVALID_PAYLOAD ]);
 
     $errors = [];
     $paypalItems = [];
@@ -40,7 +41,7 @@ class Checkout {
       $referenceId = 'cart-' . bin2hex(random_bytes(16)) . '-' . $userID;
 
       if ( $userID <= 0 || !is_array($items) || empty($items) ) {
-        return Helper::error(400, [ 'checkout' => 'Invalid user or cart items.' ]);
+        return Helper::error([ 'checkout' => 'Invalid user or cart items.' ]);
       }
 
       foreach ($items as $item) {
@@ -48,16 +49,16 @@ class Checkout {
         $productId = $item['id'] ?? 0;
         $quantity = (int) $item['quantity'] ?? 0;
 
-        if ( $productId <= 0 || $quantity <= 0 ) return Helper::error(400, [ 'checkout' => 'Invalid product or quantity' ]);
+        if ( $productId <= 0 || $quantity <= 0 ) return Helper::error([ 'checkout' => 'Invalid product or quantity' ]);
 
         $results = Product::getProductById((string) $productId);
 
-        if ( !$results || empty($results['product']) ) return Helper::error(400, [ 'checkout' => "Product was not found." ]);
+        if ( !$results || empty($results['product']) ) return Helper::error([ 'checkout' => "Product was not found." ]);
 
         $product = $results['product'];
         $unitPrice = (float) $results['price'];
 
-        if ( $unitPrice !== (float) $item['price'] ) return Helper::error(400, [ 'checkout' => 'Invalid or modified product price.' ]);
+        if ( $unitPrice !== (float) $item['price'] ) return Helper::error([ 'checkout' => 'Invalid or modified product price.' ]);
 
         $lineTotal = round($unitPrice * $quantity, 2);
 
@@ -115,7 +116,7 @@ class Checkout {
 
       $paypalOrder = Paypal::createOrder($paypalPayload);
 
-      if ( empty($paypalOrder) ) return Helper::error(502, [ 'server' => 'PayPal did not return an order ID.' ]);
+      if ( empty($paypalOrder) ) return Helper::error([ 'server' => 'PayPal did not return an order ID.' ], 502);
 
       $lastInsertedId = Order::createOrder([ $userID, $referenceId, $paypalOrder['id'], $subTotalValue, $shippingValue, $totalValue ]);
 
@@ -125,7 +126,7 @@ class Checkout {
         }
       }
 
-      return Helper::success(200, [
+      return Helper::success([
         'id' => $paypalOrder['id'],
         'status' => $paypalOrder['status'] ?? null,
       ]);
@@ -146,7 +147,7 @@ class Checkout {
 
     try {
 
-      if ( !is_string($merchantOrderId) || $merchantOrderId === '' ) return Helper::error(400, [ 'checkout' => 'PayPal order ID is required.' ]);
+      if ( !is_string($merchantOrderId) || $merchantOrderId === '' ) return Helper::error([ 'checkout' => 'PayPal order ID is required.' ]);
 
       $results = Paypal::captureOrder($merchantOrderId);
       $orders = Paypal::getOrder($merchantOrderId);
@@ -184,7 +185,7 @@ class Checkout {
         'status' => $status
       ];
 
-      return Helper::success(200, $receipt);
+      return Helper::success($receipt);
 
     } catch (\Exception $e) {
 

@@ -4,6 +4,7 @@
 
   namespace Controllers;
 
+  use Core\Constants as MSG;
   use Core\Helper;
   use Models\Auth as AuthModel;
 
@@ -30,18 +31,20 @@
 
       try {
 
-        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
-        if ( !Helper::isValidUsername($this->username) ) $errors['username'] = USERNAME_ERROR;
-        if ( !Helper::isValidPassword($this->password) ) $errors['password'] = PASSWORD_ERROR;
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
+        if ( !Helper::isValidUsername($this->username) ) $errors['username'] = MSG::INVALID_USERNAME;
+        if ( !Helper::isValidPassword($this->password) ) $errors['password'] = MSG::INVALID_PASSWORD;
 
         $check = AuthModel::getUser($this->username);
 
-        if ( $check ) $errors['username'] = USER_EXISTS;
-        if ( !empty($errors) ) return Helper::error(400, $errors);
+        if ( $check ) $errors['username'] = MSG::USERNAME_ALREADY_EXISTS;
+        if ( !empty($errors) ) return Helper::error($errors);
 
         $result = AuthModel::createUser([ $this->username, password_hash($this->password, PASSWORD_BCRYPT) ]);
 
-        if ( $result ) return Helper::success(200, [ 'msg' => 'Registration Success!' ]);
+        if ( $result ) return Helper::success([ 'msg' => MSG::REGISTRATION_SUCCESS ], 201);
+
+        return Helper::error([ 'msg' => MSG::REGISTRATION_FAILED ]);
 
       } catch (\PDOException $e) {
 
@@ -54,7 +57,7 @@
 
     public function login(): string {
 
-      $errors = [];
+      $data = [];
 
       try {
 
@@ -62,16 +65,18 @@
 
         if ( $result ) {
 
-          $data = [
-            'id' => $result['id'],
-            'user' => $result['username']
-          ];
+          $data['id'] = $result['id'];
+          $data['user'] = $result['username'];
 
-          return password_verify($this->password, $result['password']) ? Helper::success(200, $data) : Helper::error(400,[ 'user' => INVALID_USER ]);
+          if ( password_verify($this->password, $result['password']) ) {
+            return Helper::success($data);
+          }
+
+          return Helper::error([ 'msg' => MSG::INVALID_USER ]);
 
         }
 
-        return Helper::error(400, [ 'user' => INVALID_USER ]);
+        return Helper::error([ 'msg' => MSG::INVALID_USER ]);
 
       } catch (\PDOException $e) {
 

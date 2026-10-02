@@ -4,6 +4,7 @@
 
   namespace Controllers;
 
+  use Core\Constants as MSG;
   use Core\Helper;
   use Models\Category;
 
@@ -31,31 +32,28 @@
 
     public function add(): string {
 
+      $errors = [];
+
       $category = Helper::sanitize($this->category);
       $description = Helper::sanitize($this->description);
-      $errors = [];
 
       try {
 
-        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
 
         $check = Category::getCategory($category);
 
-        if ( $check ) $errors['category'] = CATEGORY_EXISTS;
-        if ( $this->icon === '' ) $errors['icon'] = 'Icon is required.';
-        if ( $this->color === '' ) $errors['color'] = 'Color is required.';
-        if ( $category === '' ) $errors['category'] = 'Category is required.';
-        if ( $errors ) return Helper::error(400, $errors);
+        if ( $check ) $errors['category'] = MSG::CATEGORY_ALREADY_EXISTS;
+        if ( $this->icon === '' ) $errors['icon'] = MSG::CATEGORY_ICON_REQUIRED;
+        if ( $this->color === '' ) $errors['color'] = MSG::CATEGORY_ICON_COLOR_REQUIRED;
+        if ( $category === '' ) $errors['category'] = MSG::CATEGORY_REQUIRED;
+        if ( $errors ) return Helper::error($errors);
 
         $result = Category::addCategory([ $category, $description, $this->icon, $this->color ]);
 
-        if ( $result ) {
-          return Helper::success(200, [
-            'status' => 200,
-            'msg' => CATEGORY_OK
-          ]);
-        }
+        if ( $result ) return Helper::success([ 'msg' => MSG::CATEGORY_ADDED_SUCCESS ], 201);
 
+        return Helper::error([ 'msg' => MSG::CATEGORY_ADDED_FAILED ]);
 
       } catch (\PDOException $e) {
 
@@ -70,10 +68,10 @@
 
       try {
 
-        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
 
         $result = Category::getCategories();
-        return Helper::success(200, $result);
+        return Helper::success($result);
 
       } catch (\PDOException $e) {
 
@@ -86,25 +84,28 @@
 
     public function update(): string {
 
+      $errors = [];
+
       $id = Helper::sanitize($this->id);
       $category = Helper::sanitize($this->category);
       $description = Helper::sanitize($this->description);
-      $errors = [];
 
       try {
 
-        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
 
         $check = Category::checkCategory($category, $this->id);
 
-        if ( !empty($check) ) $errors['category'] = CATEGORY_EXISTS ;
-        if ( $this->icon === '' ) $errors['icon'] = 'Icon is required.' ;
-        if ( $this->color === '' ) $errors['color'] = 'Color is required.' ;
-        if ( $category === '' ) $errors['category'] = 'Category is required.' ;
-        if ( $errors ) return Helper::error(400, $errors);
+        if ( !empty($check) ) $errors['category'] = MSG::CATEGORY_ALREADY_EXISTS;
+        if ( $this->icon === '' ) $errors['icon'] = MSG::CATEGORY_ICON_REQUIRED;
+        if ( $this->color === '' ) $errors['color'] = MSG::CATEGORY_ICON_COLOR_REQUIRED;
+        if ( $category === '' ) $errors['category'] = MSG::CATEGORY_REQUIRED;
+        if ( $errors ) return Helper::error($errors);
 
         $result = Category::updateCategory([ $this->icon, $this->color, $category, $description, $id ]);
-        if ( $result ) return Helper::success(200, [ 'msg' => CATEGORY_UPDATED ]);
+        if ( $result ) return Helper::success([ 'msg' => MSG::CATEGORY_UPDATED_SUCCESS ]);
+
+        return Helper::error(['msg' => MSG::CATEGORY_UPDATED_FAILED]);
 
       } catch (\PDOException $e) {
 
@@ -119,10 +120,12 @@
 
       try {
 
-        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error(400, [ 'key' => INVALID_KEY ]);
+        if ( !Helper::hasValidApiKey($this->key) ) return Helper::error([ 'key' => MSG::INVALID_KEY ]);
 
         $result = Category::deleteCategory($this->id);
-        if ( $result ) return Helper::success(200, [ 'msg' => DELETE_CATEGORY ]);
+        if ( $result ) return Helper::success([ 'msg' => MSG::CATEGORY_DELETE_SUCCESS ]);
+
+        return Helper::error([ 'msg' => MSG::CATEGORY_DELETE_FAILED ]);
 
       } catch (\PDOException $e) {
 

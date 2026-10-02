@@ -10,7 +10,7 @@
     use Database;
 
 
-    public static function getProducts(array $params = []): array {
+    public static function getProducts(): array {
       $query = '
         SELECT
           p.id,
@@ -19,19 +19,59 @@
           p.price,
           p.description,
           p.filename,
+          p.is_featured AS featured,
           c.id AS category_id,
           c.category
         FROM products AS p
         INNER JOIN categories AS c
         ON p.category_id = c.id
       ';
-      return self::readAll($query, $params);
+      return self::readAll($query);
+    }
+
+
+    public static function featuredProducts(): array {
+      $query = '
+        SELECT
+          p.id,
+          p.product,
+          p.stock,
+          p.price,
+          p.description,
+          p.filename,
+          p.is_featured AS featured,
+          c.id AS category_id,
+          c.category
+        FROM products AS p
+        INNER JOIN categories AS c
+        ON p.category_id = c.id
+        WHERE is_featured = 1
+      ';
+      return self::readAll($query);
     }
 
 
     public static function getProductById(string $id): array {
-      $query = 'SELECT id, product, price, category_id FROM products WHERE id = ?';
+
+      $query = '
+        SELECT
+          p.id,
+          p.product,
+          p.stock,
+          p.price,
+          p.description,
+          p.filename,
+          p.is_featured AS featured,
+          c.id AS category_id,
+          c.category
+        FROM products AS p
+        INNER JOIN categories AS c
+        ON p.category_id = c.id
+        WHERE p.id = ?
+      ';
+
       return self::readOne($query, [ $id ]);
+
     }
 
 
@@ -49,8 +89,9 @@
           price,
           description,
           filename,
-          category_id
-        ) VALUES(?, ?, ?, ?, ?, ?)
+          category_id,
+          is_featured
+        ) VALUES(?, ?, ?, ?, ?, ?, ?)
       ';
       return self::create($query, $params);
     }
@@ -64,6 +105,7 @@
       if ( array_key_exists('price', $params) ) $set[] = 'price = :price';
       if ( array_key_exists('description', $params) ) $set[] = 'description = :description';
       if ( array_key_exists('category', $params) ) $set[] = 'category_id = :category';
+      if ( array_key_exists('is_featured', $params) ) $set[] = 'is_featured = :is_featured';
       if ( array_key_exists('filename', $params) ) $set[] = 'filename = :filename';
 
       $query = 'UPDATE products SET ' . implode(', ', $set) . ' WHERE id = :id';

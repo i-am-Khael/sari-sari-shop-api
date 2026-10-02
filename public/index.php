@@ -6,8 +6,6 @@
     require_once dirname(__DIR__) . '/src/' . lcfirst(str_replace('\\', '/', $class)) . '.php';
   });
 
-  require_once dirname(__DIR__) . '/src/core/constant.php';
-
   use Core\Router;
 
   $router = new Router();
@@ -23,6 +21,7 @@
 
     // Products
     ->get('/api/products/all', [Controllers\Products::class, 'getAll'])
+    ->get('/api/products/featured', [Controllers\Products::class, 'featured'])
     ->post('/api/products/add', [Controllers\Products::class, 'add'])
     ->post('/api/products/update', [Controllers\Products::class, 'update'])
     ->delete('/api/products/delete', [Controllers\Products::class, 'delete'])

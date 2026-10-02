@@ -6,6 +6,7 @@
 
   use DateTime;
   use DateTimeZone;
+  use Core\Constants as MSG;
   use Models\Auth;
   use finfo;
 
@@ -17,20 +18,21 @@
     }
 
 
-    public static function success(int $status = 200, array $data = []): string {
+    public static function success(array $data = [], int $status = 200): string {
       http_response_code($status);
       return json_encode([ 'status' => $status, 'data' => $data ]);
     }
 
 
-    public static function error(int $status, array $data = []): string {
+    public static function error(array $data = [], int $status = 400): string {
       http_response_code($status);
       return json_encode([ 'status' => $status, 'errors' => $data ]);
     }
 
 
-    public static function serverError(): string {
-      return self::error(500, [ 'server' => SERVER_ERROR_500 ]);
+    public static function serverError(array $data = [], int $status = 500): string {
+      if ( empty($data) ) $data = [ 'server' => MSG::SERVER_ERROR_500 ];
+      return self::error($data, $status);
     }
 
 
@@ -77,7 +79,7 @@
     }
 
 
-    public static function validateImage(array $file, string $prefix): array|string {
+    public static function validateImage(array $file = [], string $prefix): string {
 
       if ( !isset($file['error']) ) return 'error';
       if ( $file['error'] !== UPLOAD_ERR_OK ) return 'error';
