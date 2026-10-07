@@ -1,0 +1,11 @@
+[DATABASE]
+HOST='127.0.0.1'
+DBNAME='sari_sari_shop'
+DBUSER='root'
+DBPASS=''
+CHARSET='utf8mb4'
+
+[PAYPAL]
+SANDBOX_URI=''
+CLIENT_ID=''
+SECRET_KEY=''

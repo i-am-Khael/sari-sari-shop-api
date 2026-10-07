@@ -4,13 +4,17 @@
 
   namespace Core;
 
+  use Core\Constants as MSG;
+
   class Paypal {
 
     public static function paypalAccessToken(): string {
 
-      $uri = 'https://api-m.sandbox.paypal.com';
-      $client = '';
-      $key = '';
+      $config = parse_ini_file(MSG::FILE_INI);
+
+      $uri = $config['SANDBOX_URI'] ?? '';
+      $client = $config['CLIENT_ID'] ?? '';
+      $key = $config['SECRET_KEY'] ?? '';
 
       $channel = curl_init($uri . '/v1/oauth2/token');
 
@@ -48,7 +52,8 @@
 
     public static function paypalRequest( string $method, string $endpoint, ?array $body = null): array {
 
-      $uri = 'https://api-m.sandbox.paypal.com';
+      $config = parse_ini_file(MSG::FILE_INI);
+      $uri = $config['SANDBOX_URI'] ?? '';
       $url = $uri . '/' . ltrim($endpoint, '/');
 
       $token = self::paypalAccessToken();

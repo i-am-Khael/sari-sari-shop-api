@@ -4,7 +4,8 @@
 
   final class Constants {
 
-    public const FILE_PATH = __DIR__ . '/../storage/';
+    public const FILE_INI = __DIR__ . '/../../config.ini';
+    public const FILE_PATH = __DIR__ . '/../../storage/';
     public const SERVER_ERROR_500 = 'An internal server error occured. Please try again later.';
     public const INVALID_KEY = 'The API key provided is invalid.';
     public const INVALID_PAYLOAD = 'Invalid or no payload pass.';

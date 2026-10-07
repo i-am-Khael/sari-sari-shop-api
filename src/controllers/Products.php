@@ -140,18 +140,17 @@
 
         if ( $fileName !== '' ) $data['filename'] = $fileName;
 
-        $oldFileName = Product::getProductById($id)['filename'];
+        $oldFileName = Product::getProductById($id)['filename'] ?? '';
 
         $result = Product::updateProduct($data);
 
-        if ( $result && !empty($file) ) {
-          unlink($storage . basename($oldFileName));
-          move_uploaded_file($file['tmp_name'], $storage . $fileName);
+        if ( $result ) {
+          if ( $fileName !== '' && is_file($storage . $oldFileName) ) unlink($storage . $oldFileName);
+          if ( !empty($file) ) move_uploaded_file($file['tmp_name'], $storage . $fileName);
           return Helper::success([ 'msg' => MSG::PRODUCT_UPDATED_SUCCESS ]);
         }
 
         return Helper::error([ 'msg' => MSG::PRODUCT_UPDATE_FAILED ]);
-
 
       } catch (\PDOException $e) {
 
@@ -169,11 +168,11 @@
 
       try {
 
-        $oldFileName = Product::getProductById($id)['filename'];
+        $oldFileName = Product::getProductById($id)['filename'] ?? '';
         $result = Product::deleteProduct($id);
 
         if ( $result ) {
-          unlink($storage .$oldFileName);
+          if ( $oldFileName !== '' && is_file($storage . $oldFileName) ) unlink($storage . $oldFileName);
           return Helper::success([ 'msg' => MSG::PRODUCT_DELETED_SUCCESS ]);
         }
 
@@ -181,6 +180,7 @@
 
       } catch (\PDOException $e) {
 
+        var_dump($e->getMessage());
         return Helper::serverError();
 
       }

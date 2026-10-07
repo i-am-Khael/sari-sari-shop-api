@@ -4,6 +4,8 @@
 
   namespace Core\Traits;
 
+  use Core\Constants as MSG;
+
   trait Database {
 
     private static ?\PDO $conn = null;
@@ -13,9 +15,15 @@
 
       if ( self::$conn instanceof \PDO ) return self::$conn;
 
-      $dsn = 'mysql:host=127.0.0.1;dbname=sari_sari_shop;charset=utf8mb4';
-      $user = 'root';
-      $pass = '';
+      $config = parse_ini_file(MSG::FILE_INI);
+      $host = $config['HOST'] ?? '';
+      $dbname = $config['DBNAME'] ?? '';
+      $charset = $config['CHARSET'] ?? '';
+      $user = $config['DBUSER'] ?? '';
+      $pass = $config['DBPASS'] ?? '';
+
+      $dsn = "mysql:host={$host};dbname={$dbname};charset={$charset}";
+
       $options = [
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
