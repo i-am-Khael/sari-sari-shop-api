@@ -11,13 +11,29 @@ CREATE TABLE users(
   role VARCHAR(20) NOT NULL DEFAULT 'common',
   first_name VARCHAR(60) NULL,
   last_name VARCHAR(60) NULL,
-  email VARCHAR(60) NULL UNIQUE,
+  email VARCHAR(60) NULL,
   phone VARCHAR(15) NULL,
-  address TEXT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY unique_username (username)
+  UNIQUE KEY unique_username (username),
+  UNIQUE KEY unique_email (email)
+) ENGINE=InnoDB;
+
+
+CREATE TABLE address(
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id BIGINT UNSIGNED NOT NULL,
+  region VARCHAR(50) NULL,
+  province VARCHAR(50) NULL,
+  municipality VARCHAR(50) NULL,
+  brgy VARCHAR(50) NULL,
+  street VARCHAR(255) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  INDEX index_user_id (user_id),
+  CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 
@@ -26,7 +42,7 @@ CREATE TABLE categories(
   category VARCHAR(60) NOT NULL,
   description TEXT NULL,
   icon VARCHAR(50) NOT NULL,
-  color VARCHAR(10) NOT NULL,
+  color VARCHAR(10) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -104,6 +120,19 @@ CREATE TABLE transactions(
 ) ENGINE=InnoDB;
 
 
+CREATE TABLE reviews(
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  product_id BIGINT UNSIGNED NOT NULL,
+  review LONGTEXT NOT NULL,
+  rating VARCHAR(10),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY(id),
+  INDEX index_reviews_product_id (product_id),
+  CONSTRAINT fk_reviews_product_id FOREIGN KEY (product_id) REFERENCES products(id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB ;
+
+
 CREATE TABLE secrets(
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   secret VARCHAR(255) NOT NULL,
@@ -114,6 +143,4 @@ CREATE TABLE secrets(
 ) ENGINE=InnoDB;
 
 
-INSERT INTO users(username, password) VALUE('demo','$2y$12$uThQagfhSz7SaqFfvynrdudEe/bccLB8AU15s0eFm.0q4PO.1aXg6');
-INSERT INTO users(username, password, role) VALUE('demo-admin','$2y$12$uThQagfhSz7SaqFfvynrdudEe/bccLB8AU15s0eFm.0q4PO.1aXg6', 'administrator');
 INSERT INTO secrets(secret) VALUE('ed9c4407edcbd37af5e148df48265122');
