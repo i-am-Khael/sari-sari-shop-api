@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Traits;
+namespace Core;
 
 use Core\Constants as MSG;
 
-final class Database
+trait Database
 {
 
-  private ?\PDO $pdo = null;
+  private static ?\PDO $pdo = null;
 
 
-  public function connection(): \PDO
+  public static function connection(): \PDO
   {
     try {
 
-      if ( $this->pdo instanceof \PDO ) return $this->pdo;
+      if ( self::$pdo instanceof \PDO ) return self::$pdo;
 
       $config = parse_ini_file(MSG::FILE_INI);
 
@@ -38,9 +38,9 @@ final class Database
         \PDO::ATTR_EMULATE_PREPARES => false
       ];
 
-      $this->pdo = new \PDO($dsn, $user, $pass, $options);
+      self::$pdo = new \PDO($dsn, $user, $pass, $options);
 
-      return $this->pdo;
+      return self::$pdo;
 
     } catch (\RuntimeException $e) {
 

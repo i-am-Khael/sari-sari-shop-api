@@ -49,7 +49,7 @@ class Router
 
     if ( !$action ) {
       http_response_code(404);
-      echo json_encode([ 'status' => 404, 'msg' => 'API not found.' ]);
+      echo json_encode([ 'status' => 404, 'msg' => 'Page not found.' ]);
     }
 
     if ( is_array($action) ) {
