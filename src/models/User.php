@@ -14,7 +14,7 @@ class User
   use Database;
 
 
-  public function verifyUser(string $column, string|int $value): bool|string
+  public static function verifyUser(string $column, string|int $value): bool|string
   {
     try {
 
@@ -45,29 +45,9 @@ class User
       $query = "INSERT INTO users(username, password) VALUES(:username, :password)";
       $stmt = $conn->prepare($query);
 
-      if(!stmt->execute($params)) return 0;
+      if(!$stmt->execute($params)) return 0;
 
       return (int) $conn->lastInsertId();
-
-    } catch (\PDOException $e) {
-
-      return Helper::serverError(MSG::SERVER_ERROR_500);
-
-    }
-  }
-
-
-  public static function createUserAddress(array $params): bool|string
-  {
-    try {
-
-      $conn = self::connection();
-
-      $query = "INSERT INTO address(user_id, region, provice, municipality, brgy, street) VALUES(:user_id, :region, :province, :municipality, :brgy, :street)";
-
-      $stmt = $conn->prepare($query);
-
-      return $stmt->execute($params);
 
     } catch (\PDOException $e) {
 
@@ -87,21 +67,21 @@ class User
 
       $query = "
         SELECT
-          u.id,
-          u.username,
-          u.password,
-          u.email,
-          u.phone,
-          u.role,
-          a.region,
-          a.province,
-          a.municipality,
-          a.brgy,
-          a.street
-        FROM users AS u
-        RIGHT JOIN address AS a
-        ON u.id = a.user_id
-        WHERE u.{$column} = :value
+          id,
+          username,
+          first_name as firstName,
+          last_name as lastName,
+          password,
+          email,
+          phone,
+          role,
+          region,
+          province,
+          municipality,
+          brgy,
+          street
+        FROM users
+        WHERE {$column} = :value
       ";
 
       $stmt = $conn->prepare($query);
@@ -112,6 +92,24 @@ class User
     } catch (\PDOException $e) {
 
       // error_log('Database error in User::getUser: ' . $e->getMessage());
+      return Helper::serverError(MSG::SERVER_ERROR_500);
+
+    }
+  }
+
+
+
+  public static function insertUserToken(array $params): bool|string {
+    try {
+
+      $conn = self::connection();
+      $query = "INSERT INTO auth_tokens(user_id, token, expires_at) VALUES(:id, :token, :expires)";
+      $stmt = $conn->prepare($query);
+
+      return (bool) $stmt->execute($params);
+
+    } catch (\PDOException $e) {
+
       return Helper::serverError(MSG::SERVER_ERROR_500);
 
     }

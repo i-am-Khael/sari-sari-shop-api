@@ -21,6 +21,21 @@ class Helper
   }
 
 
+  public static function createToken(): array
+  {
+
+    $token = bin2hex(random_bytes(32));
+    $hashedToken = hash('sha256', $token);
+    $expires = new \DateTimeImmutable('+1 hour');
+
+    return [
+      'token' => $hashedToken,
+      'expires' => $expires
+    ];
+
+  }
+
+
   public static function formatDate(string $date, string $timezone): string {
     $newDate = new DateTime($date, new DateTimeZone('UTC'));
     $newDate->setTimezone(new DateTimeZone($timezone));
