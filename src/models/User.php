@@ -98,22 +98,4 @@ class User
   }
 
 
-
-  public static function insertUserToken(array $params): bool|string {
-    try {
-
-      $conn = self::connection();
-      $query = "INSERT INTO auth_tokens(user_id, token, expires_at) VALUES(:id, :token, :expires)";
-      $stmt = $conn->prepare($query);
-
-      return (bool) $stmt->execute($params);
-
-    } catch (\PDOException $e) {
-
-      return Helper::serverError(MSG::SERVER_ERROR_500);
-
-    }
-  }
-
-
 }

@@ -21,6 +21,28 @@ class Helper
   }
 
 
+  public static function checkPath(): string
+  {
+
+    $route = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+
+    if (str_starts_with($route, '/api/dash/')) {
+
+      return 'administrator';
+
+    } elseif (str_starts_with($route, '/api/shop/')) {
+
+      return 'common';
+
+    } else {
+
+      return 'error';
+
+    }
+
+  }
+
+
   public static function createToken(): array
   {
 
@@ -32,6 +54,20 @@ class Helper
       'token' => $hashedToken,
       'expires' => $expires
     ];
+
+  }
+
+
+  public static function validateCSRF(): bool {
+
+    $csrfOrigin = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    $csrf = $_SESSION['csrf'] ?? '';
+
+    if ( !is_string($csrfOrigin) || !is_string($csrf) || $csrf === '' || !hash_equals($csrf, $csrfOrigin)) {
+      return true;
+    }
+
+    return false;
 
   }
 
