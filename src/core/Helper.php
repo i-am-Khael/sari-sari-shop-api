@@ -7,6 +7,7 @@ namespace Core;
 use finfo;
 use DateTime;
 use DateTimeZone;
+use Core\Constants as MSG;
 
 class Helper
 {
@@ -166,9 +167,9 @@ class Helper
   }
 
 
-  public static function serverError(string $msg, int $status = 500): string
+  public static function serverError(string $msg = '', int $status = 500): string
   {
-    if ( $msg === '' ) $msg = 'An internal server error occured.';
+    if ( $msg === '' ) $msg = MSG::SERVER_ERROR_500;
     return self::error([ 'server' => $msg ], $status);
   }
 
