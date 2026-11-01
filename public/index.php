@@ -35,9 +35,12 @@ $router
   ->post('/api/dash/sales', [Controllers\Dash\Dashboard::class, 'sales'])
   ->get('/api/dash/orders', [Controllers\Dash\Dashboard::class, 'orders'])
   ->get('/api/dash/categories', [Controllers\Dash\Dashboard::class, 'categories'])
-  ->post('/api/dash/categories/create', [Controllers\Dash\Categories::class, 'insert'])
+  ->post('/api/dash/categories/add', [Controllers\Dash\Categories::class, 'insert'])
   ->patch('/api/dash/categories/update', [Controllers\Dash\Categories::class, 'update'])
-  ->get('/api/dash/categories/all', [Controllers\Dash\Categories::class, 'categories']);
+  ->get('/api/dash/categories/all', [Controllers\Dash\Categories::class, 'categories'])
+  ->post('/api/dash/products/add', [Controllers\Dash\Products::class, 'insert'])
+  ->post('/api/dash/products/update', [Controllers\Dash\Products::class, 'update'])
+  ->get('/api/dash/products/all', [Controllers\Dash\Products::class, 'all']);
 
 
 $bs->allowedOrigin();

@@ -36,7 +36,7 @@ class Categories
         ':description' => $description
       ]);
 
-      if ((bool) $result) return Helper::success([ 'msg' => MSG::CATEGORY_ADDED_SUCCESS ]);
+      if ((bool) $result) return Helper::success([ 'msg' => MSG::CATEGORY_ADDED_SUCCESS ], 201);
 
     } catch (\Exception $e) {
 
