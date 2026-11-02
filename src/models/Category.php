@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Models\Dash;
+namespace Models;
 
 use Core\Database;
 
-class Categories
+class Category
 {
 
   use Database;

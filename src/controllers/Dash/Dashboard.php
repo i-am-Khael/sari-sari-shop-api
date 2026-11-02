@@ -7,7 +7,7 @@ namespace Controllers\Dash;
 use DateTimeImmutable;
 use Core\Helper;
 use Core\Constants as MSG;
-use Models\Dash\Dashboard as Dash;
+use Models\Dashboard as Dash;
 
 
 class Dashboard

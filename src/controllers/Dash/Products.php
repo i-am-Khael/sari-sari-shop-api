@@ -6,7 +6,7 @@ namespace Controllers\Dash;
 
 use Core\Helper;
 use Core\Constants as MSG;
-use Models\Dash\Product;
+use Models\Product;
 
 class Products
 {
@@ -125,7 +125,6 @@ class Products
 
     } catch (\Exception $e) {
 
-      var_dump($e->getMessage());
       return Helper::serverError();
 
     }

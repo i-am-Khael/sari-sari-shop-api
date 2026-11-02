@@ -20,18 +20,18 @@
     public const CATEGORY_ICON_REQUIRED = 'Category icon is required.';
     public const CATEGORY_ICON_COLOR_REQUIRED = 'Category icon color is required.';
     public const CATEGORY_ALREADY_EXISTS = 'This category already exists.';
-    public const CATEGORY_ADDED_SUCCESS = 'The category was added successfully.';
-    public const CATEGORY_UPDATED_SUCCESS = 'The category was updated successfully.';
+    public const CATEGORY_ADD_SUCCESS = 'The category was added successfully.';
+    public const CATEGORY_UPDATE_SUCCESS = 'The category was updated successfully.';
     public const CATEGORY_DELETE_SUCCESS = 'The category was deleted successfully.';
-    public const CATEGORY_ADDED_FAILED = 'Failed to add a category.';
-    public const CATEGORY_UPDATED_FAILED = 'Failed to update a category.';
+    public const CATEGORY_ADD_FAILED = 'Failed to add a category.';
+    public const CATEGORY_UPDATE_FAILED = 'Failed to update a category.';
     public const CATEGORY_DELETE_FAILED = 'Failed to delete a category.';
     public const PRODUCT_REQUIRED = 'Product is required.';
     public const PRODUCT_ID_REQUIRED = 'Product ID is required.';
-    public const PRODUCT_ADDED_SUCCESS = 'The product was added successfully.';
-    public const PRODUCT_UPDATED_SUCCESS = 'The product was updated successfully.';
-    public const PRODUCT_DELETED_SUCCESS = 'The product was deleted successfully.';
-    public const PRODUCT_ADDED_FAILED = 'Failed to add a product.';
+    public const PRODUCT_ADD_SUCCESS = 'The product was added successfully.';
+    public const PRODUCT_UPDATE_SUCCESS = 'The product was updated successfully.';
+    public const PRODUCT_DELETE_SUCCESS = 'The product was deleted successfully.';
+    public const PRODUCT_ADD_FAILED = 'Failed to add a product.';
     public const PRODUCT_UPDATE_FAILED = 'Failed to update a product.';
     public const PRODUCT_DELETE_FAILED = 'Failed to delete a product.';
 

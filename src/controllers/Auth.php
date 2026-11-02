@@ -41,17 +41,9 @@ class Auth
   }
 
 
-  public function setCSRF(): string {
-    if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(32));
-    return Helper::success([ 'csrf' => $_SESSION['csrf'] ]);
-  }
-
-
   public function register(): string
   {
     try {
-
-      if (Helper::validateCSRF()) return Helper::error([ 'msg' => 'Invalid csrf token.' ]);
 
       $username = $this->username;
       $password = $this->password;
@@ -98,7 +90,6 @@ class Auth
   {
     try {
 
-      if (Helper::validateCSRF()) return Helper::error([ 'msg' => 'Invalid csrf token.' ]);
 
       $username = $this->username;
       $password = $this->password;

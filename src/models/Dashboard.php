@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Models\Dash;
+namespace Models;
 
 use Core\Database;
 use Core\Helper;

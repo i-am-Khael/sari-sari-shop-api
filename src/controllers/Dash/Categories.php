@@ -6,7 +6,7 @@ namespace Controllers\Dash;
 
 use Core\Helper;
 use Core\Constants as MSG;
-use Models\Dash\Categories as CModel;
+use Models\Category;
 
 
 class Categories
@@ -28,15 +28,15 @@ class Categories
       $category = Helper::sanitize($this->data['category'] ?? '');
       $description = Helper::sanitize($this->data['description'] ?? '');
 
-      if (CModel::exists($category)) return Helper::error([ 'category' => MSG::CATEGORY_ALREADY_EXISTS ]);
+      if (Category::exists($category)) return Helper::error([ 'category' => MSG::CATEGORY_ALREADY_EXISTS ]);
 
-      $result = CModel::insert([
+      $result = Category::insert([
         ':icon' => $icon,
         ':category' => $category,
         ':description' => $description
       ]);
 
-      if ((bool) $result) return Helper::success([ 'msg' => MSG::CATEGORY_ADDED_SUCCESS ], 201);
+      if ((bool) $result) return Helper::success([ 'msg' => MSG::CATEGORY_ADD_SUCCESS ], 201);
 
     } catch (\Exception $e) {
 
@@ -55,16 +55,18 @@ class Categories
       $category = Helper::sanitize($this->data['category'] ?? '');
       $description = Helper::sanitize($this->data['description'] ?? '');
 
-      if (CModel::check($id, $category)) return Helper::error([ 'category' => MSG::CATEGORY_ALREADY_EXISTS ]);
+      if (Category::check($id, $category)) return Helper::error([ 'category' => MSG::CATEGORY_ALREADY_EXISTS ]);
 
-      $result = CModel::update([
+      $result = Category::update([
         ':id' => $id,
         ':icon' => $icon,
         ':category' => $category,
         ':description' => $description
       ]);
 
-      if ($result) return Helper::success([ 'msg' => MSG::CATEGORY_UPDATED_SUCCESS ]);
+      if ($result) return Helper::success([ 'msg' => MSG::CATEGORY_UPDATE_SUCCESS ]);
+
+      return Helper::error([ 'msg' => MSG::CATEGORY_UPDATE_FAILED ]);
 
     } catch (\Exception $e) {
 
@@ -74,11 +76,11 @@ class Categories
   }
 
 
-  public function categories(): string
+  public function all(): string
   {
     try {
 
-      $result = CModel::all();
+      $result = Category::all();
       return Helper::success($result);
 
     } catch (\Exception $e) {

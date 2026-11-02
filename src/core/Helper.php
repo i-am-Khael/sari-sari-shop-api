@@ -59,20 +59,6 @@ class Helper
   }
 
 
-  public static function validateCSRF(): bool {
-
-    $csrfOrigin = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-    $csrf = $_SESSION['csrf'] ?? '';
-
-    if ( !is_string($csrfOrigin) || !is_string($csrf) || $csrf === '' || !hash_equals($csrf, $csrfOrigin)) {
-      return true;
-    }
-
-    return false;
-
-  }
-
-
   public static function formatDate(string $date, string $timezone): string {
     $newDate = new DateTime($date, new DateTimeZone('UTC'));
     $newDate->setTimezone(new DateTimeZone($timezone));
