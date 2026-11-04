@@ -12,7 +12,7 @@ use Core\Router;
 
 
 $bs = new Bootstrap();
-$bs->setSessionName();
+$bs->setSession();
 
 $router = new Router();
 $router
@@ -20,18 +20,18 @@ $router
 
   // shop user
   ->post('/api/shop/auth/check', [Controllers\Auth::class, 'checkAuth'])
+  ->get('/api/shop/auth/csrf', [Controllers\Auth::class, 'csrf'])
   ->post('/api/shop/auth/register', [Controllers\Auth::class, 'register'])
   ->post('/api/shop/auth/login', [Controllers\Auth::class, 'login'])
   ->post('/api/shop/auth/logout', [Controllers\Auth::class, 'logout'])
-  ->post('/api/shop/auth/csrf', [Controllers\Auth::class, 'setCSRF'])
   ->get('/api/shop/products/all', [Controllers\Shop\Products::class, 'all'])
 
 
   // dash user
   ->post('/api/dash/auth/check', [Controllers\Auth::class, 'checkAuth'])
+  ->get('/api/dash/auth/csrf', [Controllers\Auth::class, 'csrf'])
   ->post('/api/dash/auth/login', [Controllers\Auth::class, 'login'])
   ->post('/api/dash/auth/logout', [Controllers\Auth::class, 'logout'])
-  ->post('/api/dash/auth/csrf', [Controllers\Auth::class, 'setCSRF'])
   ->get('/api/dash/totals', [Controllers\Dash\Dashboard::class, 'totals'])
   ->post('/api/dash/sales', [Controllers\Dash\Dashboard::class, 'sales'])
   ->get('/api/dash/orders', [Controllers\Dash\Dashboard::class, 'orders'])

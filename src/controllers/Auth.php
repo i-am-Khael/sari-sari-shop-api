@@ -6,6 +6,7 @@ namespace Controllers;
 
 use Core\Helper;
 use Core\Constants as MSG;
+use Core\Auth as Token;
 use Models\User;
 
 
@@ -15,7 +16,8 @@ class Auth
   private array $data = [];
   private string $username = '';
   private string $password = '';
-
+  private string $role = '';
+  private array $config = [];
 
   public function __construct()
   {
@@ -23,6 +25,8 @@ class Auth
     $this->data = Helper::initializeRequest();
     $this->username = Helper::sanitize($this->data['username'] ?? '');
     $this->password = $this->data['password'] ?? '';
+    $this->role = Token::checkPath();
+    $this->config = parse_ini_file(MSG::FILE_INI);
 
   }
 
@@ -30,14 +34,23 @@ class Auth
   public function checkAuth(): string
   {
 
-    $role = Helper::checkPath();
+    if ($this->role === 'error') return Helper::error([ 'msg' => 'Invalid Request.' ]);
 
-    if ($role === 'error') return Helper::error([ 'msg' => 'Invalid Request.' ]);
-
-    $auth = !empty($_SESSION['auth']) && isset($_SESSION['id'], $_SESSION['role']) && $_SESSION['role'] === $role;
+    $auth = !empty($_SESSION['auth']) && isset($_SESSION['id'], $_SESSION['role']) && $_SESSION['role'] === $this->role;
 
     return Helper::success([ 'authenticated' => $auth ]);
 
+  }
+
+
+  public function csrf(): string
+  {
+    $csrf = Token::issueCSRFToken();
+
+    $_SESSION['csrf_hash'] = $csrf['hash'];
+    $_SESSION['csrf_expire'] = $csrf['expires'];
+
+    return Helper::success([ 'csrf' => $csrf['token'] ]);
   }
 
 
@@ -67,15 +80,23 @@ class Auth
 
       if ($id === 0) return Helper::error([ 'msg' => MSG::REGISTRATION_FAILED ]);
 
+      $csrf = Token::issueCSRFToken();
+
       session_regenerate_id(true);
       $_SESSION['id'] = $id;
       $_SESSION['username'] = $username;
       $_SESSION['role'] = 'common';
       $_SESSION['auth'] = true;
+      $_SESSION['csrf_hash'] = $csrf['hash'];
+      $_SESSION['csrf_expire'] = $csrf['expires'];
+
+      $bearer = Token::issueToken((string )$id, 'common', $this->config['SHOP']);
 
       return Helper::success([
         'id' => $id,
         'authenticated' => true,
+        'bearer' => $bearer,
+        'csrf' => $csrf['token']
       ]);
 
     } catch (\PDOException $e) {
@@ -90,29 +111,43 @@ class Auth
   {
     try {
 
-
       $username = $this->username;
       $password = $this->password;
 
-      $role = Helper::checkPath();
+      // $bearer = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+      // $key = $this->role === 'common' ? $this->config['SHOP'] : $this->config['DASH'];
 
-      if ($role === 'error') return Helper::error([ 'msg' => 'Invalid Request.' ]);
+      // if (empty(Token::verifyToken($bearer, $this->role, $key))) return Helper::error([ 'Invalid or expired token.' ]);
+
+      if (!Token::verifyCSRF($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '', $_SESSION['csrf_hash'] ?? null, $_SESSION['csrf_expire'] ?? null)) {
+        return Helper::error([ 'csrf' => 'Invalid or expired token' ]);
+      }
+
+      if ($this->role === 'error') return Helper::error([ 'msg' => 'Invalid Request.' ]);
 
       $result = User::getUser('username', $username);
 
       if (is_array($result) && !empty($result)) {
 
-        if ($result['role'] !== $role) return Helper::error([ 'msg' => MSG::INVALID_USER ]);
+        if ($result['role'] !== $this->role) return Helper::error([ 'msg' => MSG::INVALID_USER ]);
 
         $verified = password_verify($password, $result['password']);
 
         if ($verified) {
+
+          $csrf = Token::issueCSRFToken();
 
           session_regenerate_id(true);
           $_SESSION['id'] = $result['id'];
           $_SESSION['username'] = $result['username'];
           $_SESSION['role'] = $result['role'];
           $_SESSION['auth'] = true;
+          $_SESSION['csrf_hash'] = $csrf['hash'];
+          $_SESSION['csrf_expire'] = $csrf['expires'];
+
+          $secret = $result['role'] === 'common' ? $this->config['SHOP'] : $this->config['DASH'];
+
+          $bearer = Token::issueToken((string) $result['id'], $result['role'], $secret);
 
           return Helper::success([
             'profile' => [
@@ -127,7 +162,9 @@ class Auth
               'municipality' => $result['municipality'],
               'brgy' => $result['brgy'],
               'street' => $result['street']
-            ]
+            ],
+            'bearer' => $bearer,
+            'csrf' => $csrf['token']
           ]);
 
         }
@@ -148,6 +185,7 @@ class Auth
   {
 
     $_SESSION = [];
+    $this->config = [];
 
     if (ini_get('session.use_cookies')) {
 

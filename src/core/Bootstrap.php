@@ -10,7 +10,7 @@ class Bootstrap
 {
 
 
-  public function setSessionName(): void {
+  public function setSession(): void {
 
     $route = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 
@@ -25,11 +25,11 @@ class Bootstrap
 
     if (str_starts_with($route, '/api/dash/')) {
 
-      session_name('DASHSESSID');
+      session_name('ONESESSID');
 
     } elseif (str_starts_with($route, '/api/shop/')) {
 
-      session_name('SHOPSESSID');
+      session_name('TWOSESSID');
 
     } else {
 
