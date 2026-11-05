@@ -47,16 +47,6 @@ class Auth
   }
 
 
-  public static function verifyCSRF(string $token, ?string $storedToken, ?int $expires): bool
-  {
-
-    if ($token === '' || $storedToken === null || $expires === null || $expires <= time()) return false;
-
-    return hash_equals($storedToken, hash('sha256', $token));
-
-  }
-
-
   private static function base64Encode(string $data): string
   {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
@@ -105,14 +95,14 @@ class Auth
   }
 
 
-  public static function verifyToken(string $token, string $role, string $secret): array
+  public static function verifyToken(string $token, string $role, string $secret): bool
   {
 
-    if (!preg_match('/^Bearer\s+(.+)$/i', $token, $result)) return [];
+    if (!preg_match('/^Bearer\s+(.+)$/i', $token, $result)) return false;
 
     $parts = explode('.', $result[1]);
 
-    if (count($parts) !== 3) return [];
+    if (count($parts) !== 3) return false;
 
     [ $headerPart, $payloadPart, $signaturePart ] = $parts;
 
@@ -120,12 +110,12 @@ class Auth
     $payloadData = self::base64Decode($payloadPart);
     $signatureData = self::base64Decode($signaturePart);
 
-    if ($headerData === false || $payloadData === false || $signatureData === false) return [];
+    if ($headerData === false || $payloadData === false || $signatureData === false) return false;
 
     $header = json_decode($headerData, true);
     $payload = json_decode($payloadData, true);
 
-    if (!is_array($header) || ($header['alg'] ?? null) !== 'HS256') return [];
+    if (!is_array($header) || ($header['alg'] ?? null) !== 'HS256') return false;
 
     $expected = hash_hmac(
       'sha256',
@@ -134,7 +124,7 @@ class Auth
       true
     );
 
-    if (!hash_equals($expected, $signatureData)) return [];
+    if (!hash_equals($expected, $signatureData)) return false;
 
     if (
       ($payload['iss'] ?? null) !== '19a16e2174ba04e01b1cd9dc2cd6fe7834096ca0dee3bd83029f7bd13f2f4b41' ||
@@ -143,9 +133,10 @@ class Auth
       !is_string($payload['sub']) ||
       !is_int($payload['exp']) ||
       $payload['exp'] <= time()
-    ) return [];
+    ) return false;
 
-    return $payload;
+
+    return true;
 
   }
 

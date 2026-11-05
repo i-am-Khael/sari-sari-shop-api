@@ -114,15 +114,6 @@ class Auth
       $username = $this->username;
       $password = $this->password;
 
-      // $bearer = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-      // $key = $this->role === 'common' ? $this->config['SHOP'] : $this->config['DASH'];
-
-      // if (empty(Token::verifyToken($bearer, $this->role, $key))) return Helper::error([ 'Invalid or expired token.' ]);
-
-      if (!Token::verifyCSRF($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '', $_SESSION['csrf_hash'] ?? null, $_SESSION['csrf_expire'] ?? null)) {
-        return Helper::error([ 'csrf' => 'Invalid or expired token' ]);
-      }
-
       if ($this->role === 'error') return Helper::error([ 'msg' => 'Invalid Request.' ]);
 
       $result = User::getUser('username', $username);

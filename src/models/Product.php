@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Models;
 
-use Core\Database;
+use Core\Trait\Database;
 
 
 class Product

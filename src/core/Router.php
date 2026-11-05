@@ -10,34 +10,53 @@ class Router
   private array $routes = [];
 
 
-  public function register(string $requestMethod, string $route, array $action): self
+  public function register(string $requestMethod, string $route, array $action, array $middleware = []): self
   {
-    $this->routes[$requestMethod][$route] = $action;
+    $this->routes[$requestMethod][$route] = [
+      'action' => $action,
+      'middleware' => $middleware
+    ];
     return $this;
   }
 
 
-  public function get(string $route, array $action): self
+  public function get(string $route, array $action, array $middleware = []): self
   {
-    return $this->register('GET', $route, $action);
+    return $this->register('GET', $route, $action, $middleware);
   }
 
 
-  public function post(string $route, array $action): self
+  public function post(string $route, array $action, array $middleware = []): self
   {
-    return $this->register('POST', $route, $action);
+    return $this->register('POST', $route, $action, $middleware);
   }
 
 
-  public function patch(string $route, array $action): self
+  public function patch(string $route, array $action, array $middleware = []): self
   {
-    return $this->register('PATCH', $route, $action);
+    return $this->register('PATCH', $route, $action, $middleware);
   }
 
 
-  public function delete(string $route, array $action): self
+  public function delete(string $route, array $action, array $middleware = []): self
   {
-    return $this->register('DELETE', $route, $action);
+    return $this->register('DELETE', $route, $action, $middleware);
+  }
+
+
+  private function runMiddleware(array $middleware): bool
+  {
+    foreach ($middleware as $mw) {
+
+      if (!class_exists($mw)) {
+        throw new \RuntimeException("Middleware {$mw} not found.");
+      }
+
+      if (!(new $mw())->handle()) return false;
+
+    }
+
+    return true;
   }
 
 
@@ -45,25 +64,20 @@ class Router
   {
 
     $route = explode('?', $route)[0];
-    $action = $this->routes[$requestMethod][$route] ?? null;
+    $destinationRoute = $this->routes[$requestMethod][$route] ?? null;
 
-    if ( !$action ) {
+    if (!$destinationRoute) {
       http_response_code(404);
       echo json_encode([ 'status' => 404, 'msg' => 'Page not found.' ]);
+      return;
     }
 
-    if ( is_array($action) ) {
+    if (!$this->runMiddleware($destinationRoute['middleware'])) return;
 
-      [ $class, $method ] = $action;
+    [ $class, $method ] = $destinationRoute['action'];
 
-      if ( class_exists($class) ) {
-
-        $class = new $class();
-
-        if ( method_exists($class, $method) ) echo call_user_func_array([$class, $method], []);
-
-      }
-
+    if (class_exists($class) && method_exists($class, $method)) {
+      echo call_user_func_array([new $class(), $method], []);
     }
 
   }

@@ -25,11 +25,11 @@ class Bootstrap
 
     if (str_starts_with($route, '/api/dash/')) {
 
-      session_name('ONESESSID');
+      session_name('SARISARIDASH');
 
     } elseif (str_starts_with($route, '/api/shop/')) {
 
-      session_name('TWOSESSID');
+      session_name('SARISARISHOP');
 
     } else {
 
@@ -67,7 +67,7 @@ class Bootstrap
       header("Access-Control-Allow-Credentials: true");
       header("Vary: Origin");
       header("Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS");
-      header('Access-Control-Allow-Headers: Content-type, X-CSRF-Token');
+      header('Access-Control-Allow-Headers: Content-Type, X-CSRF-Token, X-API-Token, Authorization');
     }
 
     if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {

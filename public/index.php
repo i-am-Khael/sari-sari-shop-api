@@ -9,6 +9,9 @@ spl_autoload_register(function ($class) {
 
 use Core\Bootstrap;
 use Core\Router;
+use Core\Middleware\Auth;
+use Core\Middleware\Bearer;
+use Core\Middleware\Csrf;
 
 
 $bs = new Bootstrap();
@@ -21,17 +24,17 @@ $router
   // shop user
   ->post('/api/shop/auth/check', [Controllers\Auth::class, 'checkAuth'])
   ->get('/api/shop/auth/csrf', [Controllers\Auth::class, 'csrf'])
-  ->post('/api/shop/auth/register', [Controllers\Auth::class, 'register'])
-  ->post('/api/shop/auth/login', [Controllers\Auth::class, 'login'])
-  ->post('/api/shop/auth/logout', [Controllers\Auth::class, 'logout'])
-  ->get('/api/shop/products/all', [Controllers\Shop\Products::class, 'all'])
+  ->post('/api/shop/auth/register', [Controllers\Auth::class, 'register'], [Csrf::class])
+  ->post('/api/shop/auth/login', [Controllers\Auth::class, 'login'], [Csrf::class])
+  ->post('/api/shop/auth/logout', [Controllers\Auth::class, 'logout'], [Csrf::class])
+  ->get('/api/shop/products/all', [Controllers\Shop\Products::class, 'all'], [Csrf::class])
 
 
   // dash user
   ->post('/api/dash/auth/check', [Controllers\Auth::class, 'checkAuth'])
   ->get('/api/dash/auth/csrf', [Controllers\Auth::class, 'csrf'])
-  ->post('/api/dash/auth/login', [Controllers\Auth::class, 'login'])
-  ->post('/api/dash/auth/logout', [Controllers\Auth::class, 'logout'])
+  ->post('/api/dash/auth/login', [Controllers\Auth::class, 'login'], [Csrf::class])
+  ->post('/api/dash/auth/logout', [Controllers\Auth::class, 'logout'], [Csrf::class])
   ->get('/api/dash/totals', [Controllers\Dash\Dashboard::class, 'totals'])
   ->post('/api/dash/sales', [Controllers\Dash\Dashboard::class, 'sales'])
   ->get('/api/dash/orders', [Controllers\Dash\Dashboard::class, 'orders'])
