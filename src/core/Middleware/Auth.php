@@ -17,7 +17,10 @@ class Auth implements Middleware
 
         http_response_code(401);
 
-        echo json_encode([ 'status' => 401, 'msg' => 'Unauthorized' ]);
+        echo json_encode([
+          'status' => 401,
+          'errors' => [ 'msg' => 'Unauthorized.' ]
+        ]);
 
         return false;
 

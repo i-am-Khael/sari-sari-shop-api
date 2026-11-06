@@ -28,7 +28,10 @@ class Csrf implements Middleware
 
       http_response_code(400);
 
-      echo json_encode([ 'status' => 400, 'msg' => 'Invalid or expired token.' ]);
+      echo json_encode([
+        'status' => 400,
+        'errors' => [ 'msg' => 'Invalid or expired token.' ]
+      ]);
 
       return false;
 

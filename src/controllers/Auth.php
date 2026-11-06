@@ -90,14 +90,15 @@ class Auth
       $_SESSION['csrf_hash'] = $csrf['hash'];
       $_SESSION['csrf_expire'] = $csrf['expires'];
 
-      $bearer = Token::issueToken((string )$id, 'common', $this->config['SHOP']);
+      $bearer = Token::issueToken((string) $id, 'common', $this->config['SHOP']);
 
       return Helper::success([
         'id' => $id,
         'authenticated' => true,
         'bearer' => $bearer,
-        'csrf' => $csrf['token']
-      ]);
+        'csrf' => $csrf['token'],
+        'msg' => MSG::REGISTRATION_SUCCESS
+      ], 201);
 
     } catch (\PDOException $e) {
 

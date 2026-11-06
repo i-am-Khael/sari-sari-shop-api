@@ -17,7 +17,10 @@ class Guest implements Middleware
 
         http_response_code(400);
 
-        echo json_encode([ 'status' => 400, 'msg' => 'Already authenticated.' ]);
+        echo json_encode([
+          'status' => 400,
+          'errors' => [ 'msg' => 'Already authenticated.' ]
+        ]);
 
         return false;
 

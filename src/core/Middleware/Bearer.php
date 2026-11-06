@@ -27,7 +27,7 @@ class Bearer implements Middleware
 
     $parts = explode('.', $result[1]);
 
-    if (count($parts) !== 3) $this->error();
+    if (count($parts) !== 3) return $this->error();
 
     [ $headerPart, $payloadPart, $signaturePart ] = $parts;
 
@@ -53,7 +53,7 @@ class Bearer implements Middleware
 
     if (
       ($payload['iss'] ?? null) !== '19a16e2174ba04e01b1cd9dc2cd6fe7834096ca0dee3bd83029f7bd13f2f4b41' ||
-      ($payload['aud'] ?? null !== $role) ||
+      ($payload['aud'] ?? null) !== $role ||
       !isset($payload['sub'], $payload['exp']) ||
       !is_string($payload['sub']) ||
       !is_int($payload['exp']) ||
@@ -65,14 +65,23 @@ class Bearer implements Middleware
   }
 
 
-  private function base64Decode(string $data): string | bool
+  private function base64Decode(string $data): string|false
   {
 
-    $dataLength = strlen($data) % 4;
+    $data = strtr($data, '-_', '+/');
 
-    if ($dataLength !== 0) $data .= str_repeat('=', 4 - $dataLength);
+    if (!preg_match('/\A[A-Za-z0-9+\/]*={0,2}\z/', $data)) return false;
 
-    return base64_decode(strtr($data, '-', '+/'), true);
+    $data = rtrim($data, '=');
+    $remainder = strlen($data) % 4;
+
+    if ($remainder === 1) return false;
+
+    if ($remainder !== 0) {
+      $data .= str_repeat('=', 4 - $remainder);
+    }
+
+    return base64_decode($data, true);
 
   }
 
@@ -80,7 +89,10 @@ class Bearer implements Middleware
   private function error(int $status = 400): bool
   {
     http_response_code($status);
-    echo json_encode([ 'status' => $status, 'msg' => 'Invalid or expired token.' ]);
+    echo json_encode([
+      'status' => $status,
+      'errors' => [ 'msg' => 'Invalid or expired token.' ]
+    ]);
     return false;
   }
 

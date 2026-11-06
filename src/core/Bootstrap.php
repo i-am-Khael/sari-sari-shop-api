@@ -25,17 +25,29 @@ class Bootstrap
 
     if (str_starts_with($route, '/api/dash/')) {
 
-      session_name('SARISARIDASH');
+      $name = 'SESSID_c7e6fa1771';
+      $path = '/api/dash/';
 
     } elseif (str_starts_with($route, '/api/shop/')) {
 
-      session_name('SARISARISHOP');
+      $name = 'SESSID_495d181273';
+      $path = '/api/shop/';
 
     } else {
 
       return;
 
     }
+
+    session_name($name);
+
+    session_set_cookie_params([
+      'lifetime' => 0,
+      'path' => $path,
+      'secure' => true,
+      'httponly' => true,
+      'samesite' => 'Lax'
+    ]);
 
     session_start();
 
