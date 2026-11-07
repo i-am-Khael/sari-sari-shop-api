@@ -11,13 +11,6 @@ use Models\Product;
 class Products
 {
 
-  // private array $data = [];
-
-  // public function __construct()
-  // {
-  //   $this->data = Helper::initializeRequest();
-  // }
-
   public function insert(): string
   {
     try {
@@ -57,10 +50,10 @@ class Products
 
       if ( $result ) {
         if (!empty($file)) move_uploaded_file($file['tmp_name'], $storage . $filename);
-        return Helper::success([ 'msg' => MSG::PRODUCT_ADDED_SUCCESS ], 201);
+        return Helper::success([ 'msg' => MSG::PRODUCT_ADD_SUCCESS ], 201);
       }
 
-      return Helper::error([ 'msg' => MSG::PRODUCT_ADDED_FAILED ]);
+      return Helper::error([ 'msg' => MSG::PRODUCT_ADD_FAILED ]);
 
     } catch (\Exception $e) {
 
@@ -118,7 +111,7 @@ class Products
       if ($result) {
         if ($filename !== '' && is_file($storage . $oldFile)) unlink($storage . $oldFile);
         if (!empty($file)) move_uploaded_file($file['tmp_name'], $storage . $filename);
-        return Helper::success([ 'msg' => MSG::PRODUCT_UPDATED_SUCCESS ]);
+        return Helper::success([ 'msg' => MSG::PRODUCT_UPDATE_SUCCESS ]);
       }
 
       return Helper::error([ 'msg' => MSG::PRODUCT_UPDATE_FAILED ]);

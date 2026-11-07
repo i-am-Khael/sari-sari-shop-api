@@ -173,11 +173,11 @@ class Dashboard
   }
 
 
-  public function categories(): string
+  public function popular(): string
   {
     try {
 
-      $result = Dash::categories();
+      $result = Dash::popularCategories();
       return Helper::success($result);
 
     } catch (\Exception $e) {

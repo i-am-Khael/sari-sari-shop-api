@@ -58,27 +58,22 @@ class Auth
   {
     try {
 
+      $errors = [];
       $username = $this->username;
       $password = $this->password;
 
-      if (User::verifyUser('username', $this->username)) {
-        return Helper::error([ 'username' => MSG::USERNAME_ALREADY_EXISTS ]);
-      }
+      if (User::verifyUser('username', $this->username)) $errors['username'] = MSG::USERNAME_ALREADY_EXISTS;
+      if (!Helper::isValidUsername($username)) $errors['username'] = MSG::INVALID_USERNAME;
+      if (!Helper::isValidPassword($password)) $errors['password'] = MSG::INVALID_PASSWORD;
 
-      if (!Helper::isValidUsername($username)) {
-        return Helper::error([ 'username' => MSG::INVALID_USERNAME ]);
-      }
-
-      if (!Helper::isValidPassword($password)) {
-        return Helper::error([ 'password' => MSG::INVALID_PASSWORD ]);
-      }
+      if (!empty($errors)) return Helper::error($errors);
 
       $id = User::createUser([
         'username' => $username,
         'password' => password_hash($password, PASSWORD_DEFAULT)
       ]);
 
-      if ($id === 0) return Helper::error([ 'msg' => MSG::REGISTRATION_FAILED ]);
+      if ($id === 0) return Helper::error([ 'error' => MSG::REGISTRATION_FAILED ]);
 
       $csrf = Token::issueCSRFToken();
 
@@ -97,7 +92,7 @@ class Auth
         'authenticated' => true,
         'bearer' => $bearer,
         'csrf' => $csrf['token'],
-        'msg' => MSG::REGISTRATION_SUCCESS
+        'success' => MSG::REGISTRATION_SUCCESS
       ], 201);
 
     } catch (\PDOException $e) {
@@ -115,13 +110,13 @@ class Auth
       $username = $this->username;
       $password = $this->password;
 
-      if ($this->role === 'error') return Helper::error([ 'msg' => 'Invalid Request.' ]);
+      if ($this->role === 'error') return Helper::error([ 'error' => 'Invalid Request.' ]);
 
       $result = User::getUser('username', $username);
 
       if (is_array($result) && !empty($result)) {
 
-        if ($result['role'] !== $this->role) return Helper::error([ 'msg' => MSG::INVALID_USER ]);
+        if ($result['role'] !== $this->role) return Helper::error([ 'error' => MSG::INVALID_USER ]);
 
         $verified = password_verify($password, $result['password']);
 
@@ -163,7 +158,7 @@ class Auth
 
       }
 
-      return Helper::error([ 'msg' => MSG::INVALID_USER ]);
+      return Helper::error([ 'error' => MSG::INVALID_USER ]);
 
     } catch (\PDOException $e) {
 

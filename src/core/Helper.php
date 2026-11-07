@@ -15,7 +15,6 @@ class Helper
 
   public static function initializeRequest(): array
   {
-    header('Content-Type: application/json');
     $input = file_get_contents('php://input');
     $data = json_decode($input, true);
     return $data ?? [];
@@ -59,9 +58,9 @@ class Helper
   public static function validateImage(array $file = [], string $prefix = ''): string
   {
 
-    if ( !isset($file['error']) ) return 'error';
-    if ( $file['error'] !== UPLOAD_ERR_OK ) return 'error';
-    if ( empty($file['tmp_name'] || !is_uploaded_file($file['tmp_name'])) ) return 'error';
+    if (!isset($file['error'])) return 'error';
+    if ($file['error'] !== UPLOAD_ERR_OK) return 'error';
+    if (empty($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) return 'error';
 
     $fileInfo = new finfo(FILEINFO_MIME_TYPE);
     $mimeType = (string) $fileInfo->file($file['tmp_name']);
@@ -104,6 +103,7 @@ class Helper
 
   public static function success(array $data = [], int $status = 200): string
   {
+    header('Content-Type: application/json');
     http_response_code($status);
     return json_encode([ 'status' => $status, 'data' => $data ]);
   }
@@ -111,6 +111,7 @@ class Helper
 
   public static function error(array $data = [], int $status = 400): string
   {
+    header('Content-Type: application/json');
     http_response_code($status);
     return json_encode([ 'status' => $status, 'errors' => $data ]);
   }
@@ -118,6 +119,7 @@ class Helper
 
   public static function serverError(string $msg = '', int $status = 500): string
   {
+    header('Content-Type: application/json');
     if ( $msg === '' ) $msg = MSG::SERVER_ERROR_500;
     return self::error([ 'server' => $msg ], $status);
   }

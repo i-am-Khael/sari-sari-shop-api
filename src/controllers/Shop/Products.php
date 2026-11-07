@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Controllers\Shop;
 
 use Core\Helper;
-use Core\Constants as MSG;
+use Models\Product;
 
 class Products
 {

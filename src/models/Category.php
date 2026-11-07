@@ -12,7 +12,8 @@ class Category
   use Database;
 
 
-  public static function all(): array {
+  public static function all(): array
+  {
 
     $conn = self::connection();
 
@@ -26,7 +27,23 @@ class Category
   }
 
 
-  public static function category(string $category): array {
+  public static function findById(int $id): array
+  {
+
+    $conn = self::connection();
+
+    $query = "SELECT id, icon, category, description FROM categories WHERE id = :id";
+
+    $stmt = $conn->prepare($query);
+    $stmt->execute([ ':id' => $id ]);
+
+    return $stmt->fetch() ?: [];
+
+  }
+
+
+  public static function findByCategory(string $category): array
+  {
 
     $conn = self::connection();
 
@@ -35,7 +52,7 @@ class Category
     $stmt = $conn->prepare($query);
     $stmt->execute([ ':category' => $category ]);
 
-    return $stmt->fetch();
+    return $stmt->fetch() ?: [];
 
   }
 
@@ -71,9 +88,8 @@ class Category
     ";
 
     $stmt = $conn->prepare($query);
-    return $stmt->execute($params);
 
-    // return (bool) $stmt->rowCount();
+    return $stmt->execute($params);
 
   }
 
@@ -93,7 +109,8 @@ class Category
   }
 
 
-  public static function check(int $id, string $category): bool {
+  public static function check(int $id, string $category): bool
+  {
 
     $conn = self::connection();
 
@@ -104,7 +121,6 @@ class Category
     $stmt->execute([ ':id' => $id, ':category' => $category ]);
 
     return (bool) $stmt->fetch();
-
 
   }
 

@@ -27,9 +27,14 @@ $router
   ->post('/api/shop/auth/register', [Controllers\Auth::class, 'register'], [Csrf::class])
   ->post('/api/shop/auth/login', [Controllers\Auth::class, 'login'], [Csrf::class])
   ->post('/api/shop/auth/logout', [Controllers\Auth::class, 'logout'], [Csrf::class, Bearer::class])
-  ->get('/api/shop/products/all', [Controllers\Shop\Products::class, 'all'])
+  ->get('/api/shop/products', [Controllers\Shop\Products::class, 'all'])
   ->get('/api/shop/products/featured', [Controllers\Shop\Products::class, 'featured'])
-  ->get('/api/shop/categories/all', [Controllers\Shop\Products::class, 'all'])
+  ->get('/api/shop/categories', [Controllers\Shop\Categories::class, 'all'])
+  ->get('/api/shop/category', [Controllers\Shop\Categories::class, 'category'])
+  ->get('/api/shop/categories/popular', [Controllers\Shop\Categories::class, 'popular'])
+  ->get('/api/shop/profile', [Controllers\Shop\Profile::class, 'profile'], [Auth::class, Bearer::class])
+  ->patch('/api/shop/profile/update', [Controllers\Shop\Profile::class, 'profile'], [Auth::class, Bearer::class, Csrf::class])
+
 
 
   // dash user
@@ -40,7 +45,7 @@ $router
   ->get('/api/dash/totals', [Controllers\Dash\Dashboard::class, 'totals'], [Auth::class, Bearer::class])
   ->post('/api/dash/sales', [Controllers\Dash\Dashboard::class, 'sales'], [Auth::class, Bearer::class])
   ->get('/api/dash/orders', [Controllers\Dash\Dashboard::class, 'orders'], [Auth::class, Bearer::class])
-  ->get('/api/dash/categories', [Controllers\Dash\Dashboard::class, 'categories'], [Auth::class, Bearer::class])
+  ->get('/api/dash/categories/popular', [Controllers\Dash\Dashboard::class, 'popular'], [Auth::class, Bearer::class])
   ->post('/api/dash/categories/add', [Controllers\Dash\Categories::class, 'insert'], [Auth::class, Bearer::class, Csrf::class])
   ->patch('/api/dash/categories/update', [Controllers\Dash\Categories::class, 'update'], [Auth::class, Bearer::class, Csrf::class])
   ->get('/api/dash/categories/all', [Controllers\Dash\Categories::class, 'all'], [Auth::class, Bearer::class])

@@ -57,7 +57,7 @@ class User
   }
 
 
-  public static function getUser(string $column, string|int $value): array|string
+  public static function getUser(string $column, string|int $value): array
   {
     try {
 

@@ -78,7 +78,7 @@ class Dashboard
   }
 
 
-  public static function categories(): array
+  public static function popularCategories(): array
   {
 
     $conn = self::connection();
