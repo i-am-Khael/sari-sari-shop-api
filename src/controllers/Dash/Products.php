@@ -130,9 +130,7 @@ class Products
 
       $result = Product::all();
 
-      if (!empty($result)) return Helper::success($result);
-
-      return Helper::error([ 'msg' => 'Failed to load products.' ]);
+      return Helper::success($result);
 
     } catch (\Exception $e) {
 

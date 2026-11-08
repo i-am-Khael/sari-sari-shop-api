@@ -95,7 +95,7 @@ class Auth
         'success' => MSG::REGISTRATION_SUCCESS
       ], 201);
 
-    } catch (\PDOException $e) {
+    } catch (\Exception $e) {
 
       return Helper::serverError(MSG::SERVER_ERROR_500);
 
@@ -160,7 +160,7 @@ class Auth
 
       return Helper::error([ 'error' => MSG::INVALID_USER ]);
 
-    } catch (\PDOException $e) {
+    } catch (\Exception $e) {
 
       return Helper::error(MSG::SERVER_ERROR_500);
 
