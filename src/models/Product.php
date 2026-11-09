@@ -60,6 +60,21 @@ class Product
   }
 
 
+  public static function updateStock(array $params = []): bool
+  {
+    $conn = self::connection();
+
+    $query = "
+      UPDATE products SET stock = :stock WHERE id = :id;
+    ";
+
+    $stmt = $conn->prepare($query);
+
+    return $stmt->execute($params);
+
+  }
+
+
   public static function all(): array
   {
 

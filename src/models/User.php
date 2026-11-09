@@ -98,4 +98,32 @@ class User
   }
 
 
+  public static function update(array $params): bool
+  {
+
+    $conn = self::connection();
+
+    $query = "
+      UPDATE users
+      SET
+        first_name = :firstName,
+        last_name = :lastName,
+        email = :email,
+        phone = :phone,
+        region = :region,
+        province = :province,
+        municipality = :municipality,
+        brgy = :brgy,
+        street = :street
+      WHERE
+        id = :id
+    ";
+
+    $stmt = $conn->prepare($query);
+
+    return $stmt->execute($params);
+
+  }
+
+
 }

@@ -33,8 +33,10 @@ $router
   ->get('/api/shop/categories', [Controllers\Shop\Categories::class, 'all'])
   ->get('/api/shop/category', [Controllers\Shop\Categories::class, 'category'])
   ->get('/api/shop/categories/popular', [Controllers\Shop\Categories::class, 'popular'])
-  ->get('/api/shop/profile', [Controllers\Shop\Profile::class, 'profile'], [Auth::class, Bearer::class])
-  ->patch('/api/shop/profile/update', [Controllers\Shop\Profile::class, 'profile'], [Auth::class, Bearer::class, Csrf::class])
+  ->post('/api/shop/user/profile', [Controllers\Shop\Profile::class, 'profile'], [Auth::class, Bearer::class, Csrf::class])
+  ->patch('/api/shop/user/profile/save', [Controllers\Shop\Profile::class, 'update'], [Auth::class, Bearer::class, Csrf::class])
+  ->post('/api/shop/user/checkout/create-order', [Controllers\Shop\Checkout::class, 'create'])
+  ->post('/api/shop/user/checkout/take-order', [Controllers\Shop\Checkout::class, 'take'])
 
 
   // dash user
