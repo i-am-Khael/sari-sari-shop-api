@@ -27,4 +27,20 @@ class Products
     }
   }
 
+
+  public function featured(): string
+  {
+    try {
+
+      $result = Product::featured();
+
+      return Helper::success($result);
+
+    } catch (\Exception $e) {
+
+      return Helper::serverError();
+
+    }
+  }
+
 }

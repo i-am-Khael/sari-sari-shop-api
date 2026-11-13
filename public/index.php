@@ -54,7 +54,8 @@ $router
   ->get('/api/dash/products', [Controllers\Dash\Products::class, 'all'], [Admin::class, Auth::class, Bearer::class])
   ->post('/api/dash/products/add', [Controllers\Dash\Products::class, 'insert'], [Admin::class, Auth::class, Bearer::class, Csrf::class])
   ->post('/api/dash/products/update', [Controllers\Dash\Products::class, 'update'], [Admin::class, Auth::class, Bearer::class, Csrf::class])
-  ->get('/api/dash/orders/all', [Controllers\Dash\Orders::class, 'all'], [Admin::class, Auth::class, Bearer::class]);
+  ->get('/api/dash/orders/all', [Controllers\Dash\Orders::class, 'all'], [Admin::class, Auth::class, Bearer::class])
+  ->patch('/api/dash/orders/ship', [Controllers\Dash\Orders::class, 'ship'], [Admin::class, Auth::class, Bearer::class]);
 
 
 $bs->allowedOrigin();

@@ -75,38 +75,6 @@ class Product
   }
 
 
-  public static function all(): array
-  {
-
-    $conn = self::connection();
-
-    $query = "
-      SELECT
-        p.id,
-        p.category_id,
-        p.product,
-        p.price,
-        p.stock,
-        p.description,
-        p.filename AS file,
-        p.is_featured AS featured,
-        c.category
-      FROM
-        products AS p
-      LEFT JOIN
-        categories AS c
-      ON
-        p.category_id = c.id
-    ";
-
-    $stmt = $conn->prepare($query);
-    $stmt->execute();
-
-    return $stmt->fetchAll();
-
-  }
-
-
   public static function findById(int $id): array {
 
     $conn = self::connection();
@@ -167,6 +135,68 @@ class Product
     $stmt->execute([ ':product' => $product ]);
 
     return $stmt->fetch();
+
+  }
+
+
+  public static function all(): array
+  {
+
+    $conn = self::connection();
+
+    $query = "
+      SELECT
+        p.id,
+        p.category_id,
+        p.product,
+        p.price,
+        p.stock,
+        p.description,
+        p.filename AS file,
+        p.is_featured AS featured,
+        c.category
+      FROM
+        products AS p
+      LEFT JOIN
+        categories AS c
+      ON
+        p.category_id = c.id
+    ";
+
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+
+    return $stmt->fetchAll();
+
+  }
+
+
+  public static function featured(): array
+  {
+
+    $conn = self::connection();
+
+    $query = "
+      SELECT
+        p.id,
+        p.category_id,
+        p.product,
+        p.price,
+        p.stock,
+        p.description,
+        p.filename as file,
+        p.is_featured as featured,
+        c.category
+      FROM products as p
+      INNER JOIN categories as c
+      ON p.category_id = c.id
+      WHERE p.is_featured = 1
+    ";
+
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+
+    return $stmt->fetchAll() ?: [];
 
   }
 

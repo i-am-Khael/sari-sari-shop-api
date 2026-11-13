@@ -29,4 +29,30 @@ class Orders
   }
 
 
+  public function ship(): string
+  {
+    try {
+
+      $input = Helper::initializeRequest();
+      $id = Helper::sanitize($input['id']);
+      $merid = Helper::sanitize($input['order_id']);
+      $refid = Helper::sanitize($input['reference_id']);
+
+      $result = Order::updateStatus([
+        ':id' => $id,
+        ':merid' => $merid,
+        ':refid' => $refid,
+        ':status' => 'SHIPPED'
+      ]);
+
+      return Helper::success([ 'msg' => 'Order is now shipped.' ]);
+
+    } catch (\Exception $e) {
+
+      return Helper::serverError();
+
+    }
+  }
+
+
 }

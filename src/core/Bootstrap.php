@@ -15,7 +15,7 @@ class Bootstrap
     $route = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 
     session_set_cookie_params([
-      'lifetime' => 0,
+      'lifetime' => 86400, // 24 hours
       'path' => '/',
       'domain' => '',
       'secure' => true,
@@ -42,7 +42,7 @@ class Bootstrap
     session_name($name);
 
     session_set_cookie_params([
-      'lifetime' => 0,
+      'lifetime' => 86400, // 24 hours
       'path' => $path,
       'secure' => true,
       'httponly' => true,

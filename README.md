@@ -1,11 +1,10 @@
 
 # E-STORE-API
 - backend api for e-store-vue
-- preparing the api first before integrating it to e-store-vue frontend.
+- preparing the api first before integrating it to sari-sari-shop and dashboard frontend.
 - this is just a hobby project
-- started date: August 30, 2026
 
-## TECH USED ( currently )
+### TECH USED ( currently )
 - Linux ( Debian 13 ) Operating System
 - Homebrew/Linuxbrew ( for installing nginx, php and mysql )
 - [ZED ( for my text editor )](https://zed.dev)

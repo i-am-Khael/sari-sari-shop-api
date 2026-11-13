@@ -36,7 +36,7 @@ class Auth
 
     $token = bin2hex(random_bytes(32));
     $hashedToken = hash('sha256', $token);
-    $expires = time() + 3600;
+    $expires = time() + (3600 * 42); // 24 hours
 
     return [
       'token' => $token,
@@ -83,7 +83,7 @@ class Auth
         'aud' => $role,
         'sub' => $uid,
         'iat' => $time,
-        'exp' => $time + $expire
+        'exp' => $time + (3600 * 42) // 24 hours
       ], JSON_THROW_ON_ERROR)
     );
 

@@ -137,21 +137,11 @@ class Auth
           $bearer = Token::issueToken((string) $result['id'], $result['role'], $secret);
 
           return Helper::success([
-            'profile' => [
-              'id' => $result['id'],
-              'username' => $result['username'],
-              'firstName' => $result['firstName'],
-              'lastName' => $result['lastName'],
-              'email' => $result['email'],
-              'phone' => $result['phone'],
-              'region' => $result['region'],
-              'province' => $result['province'],
-              'municipality' => $result['municipality'],
-              'brgy' => $result['brgy'],
-              'street' => $result['street']
-            ],
+            'id' => $result['id'],
+            'authenticated' => true,
             'bearer' => $bearer,
-            'csrf' => $csrf['token']
+            'csrf' => $csrf['token'],
+            'success' => "Welcome back {$result['username']}"
           ]);
 
         }
