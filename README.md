@@ -1,6 +1,6 @@
 
 # E-STORE-API
-- backend api for e-store-vue
+- backend api for sari-sari-shop
 - preparing the api first before integrating it to sari-sari-shop and dashboard frontend.
 - this is just a hobby project
 

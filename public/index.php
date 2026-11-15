@@ -16,6 +16,7 @@ use Core\Middleware\Csrf;
 
 
 $bs = new Bootstrap();
+$bs->allowedOrigin();
 $bs->setSession();
 
 $router = new Router();
@@ -58,5 +59,4 @@ $router
   ->patch('/api/dash/orders/ship', [Controllers\Dash\Orders::class, 'ship'], [Admin::class, Auth::class, Bearer::class]);
 
 
-$bs->allowedOrigin();
 $router->resolve($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
